@@ -1,0 +1,35 @@
+# Entornos virtuales
+venv/
+env/
+__pycache__/
+*.py[cod]
+
+# Archivos de entorno y dependencias
+*.env
+*.log
+*.sqlite3
+*.db
+
+# Configuración de editor
+.vscode/
+.idea/
+*.swp
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de Jupyter Notebook (opcional)
+.ipynb_checkpoints/
+
+# Carpeta de mockups o diseño
+mockups/
+*.fig
+
+# CSV, Excel u otros datos simulados
+*.csv
+*.xlsx
+
+# Compilación o dist (por si exportas algo en frontend más adelante)
+dist/
+build/
