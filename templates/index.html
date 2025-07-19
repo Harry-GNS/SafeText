@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeText - Sistema de Detección de Ciberacoso Escolar</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>SafeText</h1>
+            <h2>Sistema de Detección de Ciberacoso Escolar</h2>
+        </div>
+        <div class="header-year">
+            <span>EPN 2025</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="main-container">
+            <div class="input-section">
+                <h3>Ingresa el Texto.</h3>
+                
+                <div class="text-input-container">
+                    <textarea 
+                        id="text-input" 
+                        placeholder="Copia o Escribe aquí..."
+                        rows="15"
+                        cols="50"
+                    ></textarea>
+                    
+                    <div class="file-upload-section">
+                        <div class="file-drop-area" id="file-drop-area">
+                            <p>Arrastra aquí tus archivos...</p>
+                        </div>
+                        
+                        <button class="btn-secondary" id="upload-btn">Cargar Archivos</button>
+                        <button class="btn-secondary" id="options-btn">Opciones</button>
+                        
+                        <input type="file" id="file-input" multiple accept=".txt,.doc,.docx" style="display: none;">
+                    </div>
+                </div>
+                
+                <button class="btn-primary" id="analyze-btn">Analizar</button>
+            </div>
+            
+            <div class="info-section">
+                <div class="project-description">
+                    <p>Este proyecto ha sido desarrollado sin fines de lucro, con el propósito de poner a prueba algoritmos de búsqueda de patrones aplicados a la detección de mensajes de odio. Para utilizarlo, simplemente copia tu texto o sube un archivo con los mensajes. Además, tienes la opción de agregar tus propios patrones personalizados para ampliar la detección.</p>
+                </div>
+                
+                <div class="about-link">
+                    <a href="#" id="about-us">About us</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
