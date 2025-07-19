@@ -9,8 +9,7 @@
 <body>
     <header>
         <div class="header-content">
-            <h1>SafeText</h1>
-            <h2>Sistema de Detección de Ciberacoso Escolar</h2>
+            <h1>SafeText <span class="subtitle">Sistema de Detección de Ciberacoso Escolar</span></h1>
         </div>
         <div class="header-year">
             <span>EPN 2025</span>
@@ -23,12 +22,18 @@
                 <h3>Ingresa el Texto.</h3>
                 
                 <div class="text-input-container">
-                    <textarea 
-                        id="text-input" 
-                        placeholder="Copia o Escribe aquí..."
-                        rows="15"
-                        cols="50"
-                    ></textarea>
+                    <div class="textarea-wrapper">
+                        <textarea 
+                            id="text-input" 
+                            placeholder="Copia o Escribe aquí..."
+                            rows="15"
+                            cols="50"
+                            maxlength="5000"
+                        ></textarea>
+                        <div class="character-counter">
+                            <span id="char-count">0</span> / 5,000 caracteres
+                        </div>
+                    </div>
                     
                     <div class="file-upload-section">
                         <div class="file-drop-area" id="file-drop-area">
@@ -56,5 +61,30 @@
             </div>
         </div>
     </main>
+
+    <script>
+        // Contador de caracteres
+        const textInput = document.getElementById('text-input');
+        const charCount = document.getElementById('char-count');
+        
+        function updateCharCount() {
+            const currentLength = textInput.value.length;
+            charCount.textContent = currentLength;
+            
+            // Cambiar color cuando se acerque al límite
+            if (currentLength > 4500) {
+                charCount.style.color = '#e74c3c';
+            } else if (currentLength > 4000) {
+                charCount.style.color = '#f39c12';
+            } else {
+                charCount.style.color = '#666';
+            }
+        }
+        
+        textInput.addEventListener('input', updateCharCount);
+        textInput.addEventListener('paste', function() {
+            setTimeout(updateCharCount, 10);
+        });
+    </script>
 </body>
 </html>
