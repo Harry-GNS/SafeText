@@ -115,10 +115,7 @@ Desarrollar una aplicación web que permita analizar mensajes de texto en tiempo
 
 El sistema incluye una batería completa de pruebas con:
 
-- **15 mensajes escolares simulados** realistas
-- **Casos positivos y negativos** de detección
-- **Pruebas de rendimiento** de algoritmos
-- **Validación de precisión** en diferentes contextos
+
 
 ---
 
@@ -151,21 +148,6 @@ Este proyecto forma parte del curso **Estructura de Datos y Algoritmos II** y ti
 
 ---
 
-## 🤔 Reflexión Crítica y Limitaciones
-
-### ⚠️ Limitaciones Actuales
-- **Detección literal**: Solo patrones exactos, no variaciones semánticas
-- **Sin contexto**: No considera ironía, sarcasmo o contexto conversacional
-- **Idioma único**: Limitado al español (expandible)
-- **Errores ortográficos**: Pueden evadir la detección
-
-### 🚀 Potencial de Mejora
-- **Machine Learning**: Para detección más sofisticada
-- **Análisis semántico**: Comprensión del contexto
-- **Feedback continuo**: Aprendizaje del sistema
-- **Integración API**: Con servicios de moderación externos
-
----
 
 ## 🛡️ Consideraciones Éticas
 
