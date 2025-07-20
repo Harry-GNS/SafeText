@@ -514,10 +514,6 @@
                             <span class="summary-value" id="categories-list">N/A</span>
                         </div>
                         <div class="summary-item">
-                            <span class="summary-label">Densidad de patrones:</span>
-                            <span class="summary-value" id="pattern-density">N/A</span>
-                        </div>
-                        <div class="summary-item">
                             <span class="summary-label">Algoritmos usados:</span>
                             <span class="summary-value" id="algorithms-list">N/A</span>
                         </div>
@@ -931,18 +927,6 @@
         function updateDetectionSummary(result) {
             document.getElementById('patterns-count').textContent = result.total_patterns_found || 0;
             document.getElementById('matches-count').textContent = result.total_matches || 0;
-            
-            // Calcular y mostrar densidad de patrones
-            const textLength = (localStorage.getItem('analyzedText') || '').trim();
-            const wordCount = textLength.split(/\s+/).filter(word => word.length > 0).length;
-            const patternCount = result.total_patterns_found || 0;
-            
-            if (wordCount > 0 && patternCount > 0) {
-                const density = ((patternCount / wordCount) * 100).toFixed(1);
-                document.getElementById('pattern-density').textContent = `${density}% (${patternCount}/${wordCount} palabras)`;
-            } else {
-                document.getElementById('pattern-density').textContent = '0%';
-            }
             
             // Mostrar categorías detectadas
             if (result.matches && result.matches.length > 0) {

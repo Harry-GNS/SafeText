@@ -6,7 +6,14 @@ Generador de recomendaciones personalizadas basadas en el análisis de ciberacos
 class RecommendationsEngine:
     def __init__(self):
         self.recommendations_bank = {
-            # Recomendaciones para contenido seguro
+            # Recomendaciones para contenido seguro (eliminar l            fallback_recommendation = {
+                'id': 'fallback_education',
+                'icon': '📚',
+                'title': 'Educación y Prevención',
+                'description': 'La educación continua es la mejor herramienta para prevenir el ciberacoso.',
+                'action': 'Implemente programas de concientización sobre comunicación digital responsable y respeto en línea.',
+                'priority': 1
+            })
             "safe": [
                 {
                     "id": "safe_001",
@@ -31,10 +38,16 @@ class RecommendationsEngine:
                     "description": "Aunque el contenido es seguro, la prevención es clave.",
                     "action": "Implemente programas regulares de concientización sobre ciberacoso y comunicación digital responsable.",
                     "priority": 2
+                },
+                {
+                    "id": "safe_004",
+                    "icon": "🌟",
+                    "title": "Comunicación Ejemplar",
+                    "description": "El contenido refleja un intercambio comunicativo respetuoso y constructivo.",
+                    "action": "Use este ejemplo como modelo para capacitaciones sobre comunicación digital positiva.",
+                    "priority": 2
                 }
-            ],
-            
-            # Recomendaciones por categorías de patrones
+            ],            # Recomendaciones por categorías de patrones
             "categories": {
                 "Insultos y Ofensas": [
                     {
@@ -126,7 +139,7 @@ class RecommendationsEngine:
                         "icon": "📖",
                         "title": "Educación Temprana",
                         "description": "La intervención temprana previene la escalación.",
-                        "action": "Organice talleres sobre netiqueta y comunicación respetuosa en línea.",
+                        "action": "Organize talleres sobre netiqueta y comunicación respetuosa en línea.",
                         "priority": 2
                     }
                 ],
@@ -186,7 +199,7 @@ class RecommendationsEngine:
                 ]
             },
             
-            # Recomendaciones generales por contexto
+            # Recomendaciones generales por contexto (más variedad, sin manual)
             "general": [
                 {
                     "id": "general_001",
@@ -203,19 +216,32 @@ class RecommendationsEngine:
                     "description": "El monitoreo regular previene la recurrencia de patrones problemáticos.",
                     "action": "Establezca un sistema de seguimiento regular para evaluar la efectividad de las medidas.",
                     "priority": 2
+                },
+                {
+                    "id": "general_003",
+                    "icon": "📋",
+                    "title": "Documentación de Incidentes",
+                    "description": "Mantener registros detallados ayuda a identificar patrones y tendencias.",
+                    "action": "Implemente un sistema de documentación para todos los incidentes de comunicación digital.",
+                    "priority": 3
+                },
+                {
+                    "id": "general_004",
+                    "icon": "🎯",
+                    "title": "Capacitación Especializada",
+                    "description": "El personal debe estar preparado para identificar y manejar situaciones de ciberacoso.",
+                    "action": "Organice capacitaciones especializadas para educadores y personal administrativo.",
+                    "priority": 2
+                },
+                {
+                    "id": "general_005",
+                    "icon": "🔒",
+                    "title": "Políticas de Seguridad Digital",
+                    "description": "Las políticas claras establecen expectativas y consecuencias.",
+                    "action": "Desarrolle y actualice políticas específicas sobre uso responsable de tecnología.",
+                    "priority": 3
                 }
             ]
-        }
-
-    def _get_fallback_recommendation(self):
-        """Recomendación de respaldo"""
-        return {
-            'id': 'fallback_education',
-            'icon': '📚',
-            'title': 'Educación y Prevención',
-            'description': 'La educación continua es la mejor herramienta para prevenir el ciberacoso.',
-            'action': 'Implemente programas de concientización sobre comunicación digital responsable y respeto en línea.',
-            'priority': 1
         }
 
     def generate_recommendations(self, analysis_result):
@@ -226,36 +252,22 @@ class RecommendationsEngine:
             analysis_result (dict): Resultado del análisis de ciberacoso
             
         Returns:
-            dict: Recomendación principal seleccionada
+            list: Lista de recomendaciones seleccionadas y ordenadas por prioridad
         """
         try:
-            print(f"DEBUG: Análisis recibido: {analysis_result}")  # Debug
+            selected_recommendations = []
             
-            # Verificar si es ciberacoso
-            is_cyberbullying = analysis_result.get('is_cyberbullying', False)
-            
-            if not is_cyberbullying:
-                # Contenido seguro - seleccionar recomendación de seguridad
-                safe_recommendations = self.recommendations_bank.get('safe', [])
-                if safe_recommendations:
-                    main_recommendation = safe_recommendations[0]  # Primera recomendación de seguridad
-                    print(f"DEBUG: Seleccionada recomendación de contenido seguro: {main_recommendation['title']}")
-                else:
-                    main_recommendation = self._get_fallback_recommendation()
+            # Seleccionar recomendaciones basadas en el análisis
+            if not analysis_result.get('is_cyberbullying', False):
+                # Contenido seguro - seleccionar 1 recomendación preventiva + 1 general
+                selected_recommendations = self._select_recommendations_by_type('safe', 1)
+                selected_recommendations.extend(self._select_recommendations_by_type('general', 1))
             else:
-                # Contenido problemático - lógica inteligente de selección
-                candidates = []
-                
-                # 1. Priorizar por severidad del riesgo
+                # Contenido problemático - seleccionar por severidad
                 risk_level = analysis_result.get('risk_level', 'Low')
-                print(f"DEBUG: Nivel de riesgo: {risk_level}")
+                selected_recommendations = self._select_recommendations_by_severity(risk_level, 1)
                 
-                severity_recs = self.recommendations_bank['severity'].get(risk_level, [])
-                if severity_recs:
-                    candidates.extend(severity_recs)
-                    print(f"DEBUG: Agregadas {len(severity_recs)} recomendaciones por severidad")
-                
-                # 2. Agregar recomendaciones específicas por categoría detectada
+                # Agregar recomendaciones por categorías detectadas
                 if analysis_result.get('matches'):
                     categories_found = list(set([
                         match.get('pattern_info', {}).get('category', '')
@@ -263,32 +275,53 @@ class RecommendationsEngine:
                         if match.get('pattern_info', {}).get('category')
                     ]))
                     
-                    print(f"DEBUG: Categorías encontradas: {categories_found}")
-                    
-                    for category in categories_found:
-                        category_recs = self.recommendations_bank['categories'].get(category, [])
-                        if category_recs:
-                            candidates.extend(category_recs)
-                            print(f"DEBUG: Agregadas recomendaciones para categoría '{category}': {len(category_recs)}")
+                    for category in categories_found[:1]:  # Solo 1 categoría para evitar repetición
+                        category_recs = self._select_recommendations_by_category(category, 1)
+                        selected_recommendations.extend(category_recs)
                 
-                # 3. Seleccionar la mejor recomendación
-                if candidates:
-                    # Priorizar por: 1) Prioridad más alta (número menor), 2) Categoría específica sobre severidad general
-                    best_recommendation = min(candidates, key=lambda x: (x['priority'], 0 if x['id'].startswith(('threat_', 'sexual_', 'insult_', 'exclusion_')) else 1))
-                    main_recommendation = best_recommendation
-                    print(f"DEBUG: Mejor recomendación seleccionada: {main_recommendation['title']}")
-                else:
-                    print("DEBUG: No se encontraron candidatos, usando fallback")
-                    main_recommendation = self._get_fallback_recommendation()
+                # Agregar recomendación general si hay espacio
+                if len(selected_recommendations) < 2:
+                    selected_recommendations.extend(self._select_recommendations_by_type('general', 1))
             
+            # Seleccionar solo la recomendación de mayor prioridad
+            selected_recommendations = sorted(
+                selected_recommendations, 
+                key=lambda x: x['priority']
+            )
+            
+            # Tomar solo la primera recomendación (mayor prioridad)
+            main_recommendation = selected_recommendations[0] if selected_recommendations else None
+            
+            if not main_recommendation:
+                # Fallback si no hay recomendaciones - usar una recomendación de educación
+                main_recommendation = {
+                    'id': 'fallback_education',
+                    'icon': '�',
+                    'title': 'Educación y Prevención',
+                    'description': 'La educación continua es la mejor herramienta para prevenir el ciberacoso.',
+                    'action': 'Implemente programas de concientización sobre comunicación digital responsable y respeto en línea.',
+                    'priority': 1
+                }
+            
+            # No incluir resumen en la respuesta
             return {
                 'main_recommendation': main_recommendation
             }
             
         except Exception as e:
             print(f"Error generando recomendaciones: {e}")
+            # Fallback con recomendación educativa
+            fallback_recommendation = {
+                'id': 'fallback_education',
+                'icon': '�',
+                'title': 'Educación y Prevención',
+                'description': 'La educación continua es la mejor herramienta para prevenir el ciberacoso.',
+                'action': 'Implemente programas de concientización sobre comunicación digital responsable y respeto en línea.',
+                'priority': 1
+            }
+            
             return {
-                'main_recommendation': self._get_fallback_recommendation()
+                'main_recommendation': fallback_recommendation
             }
 
     def _select_recommendations_by_type(self, rec_type, count):
@@ -308,6 +341,77 @@ class RecommendationsEngine:
         """Selecciona recomendaciones por categoría de patrón"""
         recommendations = self.recommendations_bank['categories'].get(category, [])
         return recommendations[:count]
+
+    def _get_fallback_recommendations(self):
+        """Recomendaciones de respaldo en caso de error"""
+        return [
+            {
+                "id": "fallback_001",
+                "icon": "👀",
+                "title": "Revisión Manual Recomendada",
+                "description": "Se sugiere una revisión manual del contenido.",
+                "action": "Evalúe el contexto completo de la comunicación y tome medidas apropiadas.",
+                "priority": 1
+            },
+            {
+                "id": "fallback_002", 
+                "icon": "📚",
+                "title": "Educación Preventiva",
+                "description": "La educación es fundamental para prevenir el ciberacoso.",
+                "action": "Implemente programas de concientización sobre comunicación digital responsable.",
+                "priority": 2
+            }
+        ]
+
+    def _generate_analysis_summary(self, analysis_result, top_recommendations):
+        """Genera un resumen del análisis"""
+        try:
+            is_cyberbullying = analysis_result.get('is_cyberbullying', False)
+            risk_level = analysis_result.get('risk_level', 'None')
+            patterns_found = analysis_result.get('total_patterns_found', 0)
+            total_matches = analysis_result.get('total_matches', 0)
+            
+            if not is_cyberbullying:
+                return {
+                    'status': 'Contenido Seguro',
+                    'risk_level': 'Bajo',
+                    'patterns_detected': 0,
+                    'description': 'No se detectaron patrones de ciberacoso. El contenido parece apropiado para la comunicación digital.',
+                    'next_steps': 'Mantener buenas prácticas de comunicación y seguir monitoreando.'
+                }
+            else:
+                risk_description = {
+                    'Low': 'Se detectaron algunos patrones menores que requieren atención.',
+                    'Medium': 'Se identificaron patrones moderados de riesgo que necesitan intervención.',
+                    'High': 'Se encontraron patrones serios de ciberacoso que requieren acción inmediata.',
+                    'Critical': 'Se detectaron patrones críticos que demandan intervención urgente.'
+                }.get(risk_level, 'Patrones detectados requieren evaluación.')
+                
+                next_steps = {
+                    'Low': 'Educar sobre comunicación apropiada y monitorear de cerca.',
+                    'Medium': 'Implementar medidas de intervención y seguimiento regular.',
+                    'High': 'Tomar acción inmediata e involucrar a autoridades apropiadas.',
+                    'Critical': 'Intervención de emergencia y medidas de protección inmediatas.'
+                }.get(risk_level, 'Evaluar situación y tomar medidas apropiadas.')
+                
+                return {
+                    'status': f'Riesgo {risk_level}',
+                    'risk_level': risk_level,
+                    'patterns_detected': patterns_found,
+                    'total_matches': total_matches,
+                    'description': risk_description,
+                    'next_steps': next_steps
+                }
+                
+        except Exception as e:
+            print(f"Error generando resumen: {e}")
+            return {
+                'status': 'Error en análisis',
+                'risk_level': 'Desconocido',
+                'patterns_detected': 0,
+                'description': 'Hubo un error al generar el resumen del análisis.',
+                'next_steps': 'Realizar revisión manual del contenido.'
+            }
 
     def get_all_recommendations(self):
         """Retorna todas las recomendaciones disponibles (para propósitos de debugging)"""
@@ -337,7 +441,7 @@ def get_recommendations_for_analysis(analysis_result):
     except Exception as e:
         fallback_recommendation = {
             "id": "fallback_education",
-            "icon": "📚",
+            "icon": "�",
             "title": "Educación y Prevención",
             "description": "La educación continua es la mejor herramienta para prevenir el ciberacoso.",
             "action": "Implemente programas de concientización sobre comunicación digital responsable y respeto en línea.",
@@ -377,11 +481,9 @@ if __name__ == "__main__":
     result = get_recommendations_for_analysis(test_analysis)
     print("Resultado del test:")
     print(f"Éxito: {result['success']}")
+    print(f"Número de recomendaciones: {result['total_recommendations']}")
     
-    if result['recommendation']:
-        rec = result['recommendation']
-        print(f"\nRecomendación seleccionada:")
-        print(f"  Título: {rec['title']}")
-        print(f"  Prioridad: {rec['priority']}")
-        print(f"  Descripción: {rec['description']}")
-        print(f"  Acción: {rec['action']}")
+    for i, rec in enumerate(result['recommendations'], 1):
+        print(f"\n{i}. {rec['title']}")
+        print(f"   Prioridad: {rec['priority']}")
+        print(f"   Descripción: {rec['description']}")
