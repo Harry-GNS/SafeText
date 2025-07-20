@@ -291,5 +291,3 @@ if __name__ == '__main__':
     print("Iniciando servidor en http://localhost:5000")
     app.run(debug=True, host='0.0.0.0', port=5000)
 
-Saturday, July 19, 2025 9:39:44 PM
-
