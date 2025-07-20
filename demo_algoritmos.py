@@ -7,7 +7,7 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from algorithms.selector import AlgorithmSelector
-
+#Harry comit
 def demo_algorithm_selection():
     """
     Demuestra cómo el selector elige algoritmos para cada patrón.
