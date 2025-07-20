@@ -70,12 +70,21 @@
             <p>Creado por <strong>Harry Guajan</strong> y <strong>Joel Tinitana</strong></p>
             <p>Escuela Politécnica Nacional (EPN) - Estructura de Datos y Algoritmos II</p>
             <div class="footer-links">
-                <a href="#" class="footer-link">Términos de Uso</a>
+                <a href="#" class="footer-link" id="terms-link">Términos de Uso</a>
                 <span class="separator">•</span>
-                <a href="#" class="footer-link">Política de Privacidad</a>
+                <a href="#" class="footer-link" id="privacy-link">Política de Privacidad</a>
                 <span class="separator">•</span>
-                <a href="#" class="footer-link">Contacto</a>
+                <a href="#" class="footer-link" id="contact-link">Contacto</a>
             </div>
+        </div>
+        <div class="footer-details" style="display: none;" id="terms-details">
+            <p> Este sistema es totalmente libre de uso, pero se recomienda precaución al momento de gestionar patrones, ya que pueden incluir palabras fuertes o sensibles.</p>
+        </div>
+        <div class="footer-details" style="display: none;" id="privacy-details">
+            <p> [Por definir]</p>
+        </div>
+        <div class="footer-details" style="display: none;" id="contact-details">
+            <p> Harry Guajan: harry.gns@outlook.com | Joel Tinitana: joel.tinitana@epn.edu.ec</p>
         </div>
     </footer>
 
@@ -211,6 +220,29 @@
             e.preventDefault();
             alert('SafeText - Sistema de Detección de Ciberacoso Escolar\n\nDesarrollado por Harry Guajan y Joel Tinitana\nEscuela Politécnica Nacional (EPN)\nEstructura de Datos y Algoritmos II\n\nEste sistema utiliza algoritmos avanzados de búsqueda de patrones para detectar y prevenir situaciones de ciberacoso en entornos educativos.');
         });
+
+        document.getElementById('terms-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleDetails('terms-details');
+        });
+
+        document.getElementById('privacy-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleDetails('privacy-details');
+        });
+
+        document.getElementById('contact-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleDetails('contact-details');
+        });
+
+        function toggleDetails(id) {
+            const allDetails = document.querySelectorAll('.footer-details');
+            allDetails.forEach(detail => detail.style.display = 'none');
+
+            const selectedDetail = document.getElementById(id);
+            selectedDetail.style.display = 'block';
+        }
     </script>
 </body>
 </html>
