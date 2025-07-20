@@ -1063,3 +1063,82 @@ footer {
         max-width: 250px;
     }
 }
+
+/* Estilos para estados de carga y nuevas clases */
+.loading-state {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.no-patterns {
+    text-align: center;
+    padding: 40px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #28a745;
+}
+
+.no-patterns-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.no-patterns h4 {
+    color: #28a745;
+    margin-bottom: 10px;
+}
+
+.no-patterns p {
+    color: #666;
+}
+
+/* Clases de riesgo actualizadas */
+.pattern-item.critical-risk {
+    border-left: 4px solid #dc3545;
+    background: #fff5f5;
+}
+
+.pattern-item.critical-risk .risk-level {
+    background: #dc3545;
+    color: white;
+}
+
+.algorithm-used {
+    background: #6f42c1;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    margin-left: auto;
+}
+
+.match-count {
+    background: #f8f9fa;
+    color: #666;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-left: 5px;
+}
+
+.match-positions {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: #666;
+}

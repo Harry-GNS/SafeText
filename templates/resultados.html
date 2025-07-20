@@ -174,14 +174,81 @@
         });
         
         document.getElementById('export-report').addEventListener('click', function() {
-            // Funcionalidad para exportar reporte
-            alert('Funcionalidad de exportación en desarrollo');
+            exportAnalysisReport();
         });
         
         document.getElementById('save-results').addEventListener('click', function() {
-            // Funcionalidad para guardar resultados
-            alert('Resultados guardados exitosamente');
+            saveAnalysisResults();
         });
+
+        // Función para exportar reporte
+        function exportAnalysisReport() {
+            const results = localStorage.getItem('analysisResults');
+            const analyzedText = localStorage.getItem('analyzedText');
+            
+            if (!results || !analyzedText) {
+                alert('No hay resultados para exportar');
+                return;
+            }
+            
+            const data = JSON.parse(results);
+            const timestamp = new Date().toLocaleString('es-ES');
+            
+            let reportContent = `SAFETEXT - REPORTE DE ANÁLISIS DE CIBERACOSO\n`;
+            reportContent += `================================================\n\n`;
+            reportContent += `Fecha y hora: ${timestamp}\n`;
+            reportContent += `Texto analizado: "${analyzedText}"\n`;
+            reportContent += `Longitud del texto: ${analyzedText.length} caracteres\n\n`;
+            
+            reportContent += `RESULTADOS DEL ANÁLISIS:\n`;
+            reportContent += `------------------------\n`;
+            reportContent += `¿Es ciberacoso?: ${data.is_cyberbullying ? 'SÍ' : 'NO'}\n`;
+            reportContent += `Nivel de riesgo: ${data.risk_level}\n`;
+            reportContent += `Patrones detectados: ${data.total_patterns_found}\n`;
+            reportContent += `Total de coincidencias: ${data.total_matches}\n\n`;
+            
+            if (data.matches && data.matches.length > 0) {
+                reportContent += `PATRONES DETECTADOS:\n`;
+                reportContent += `-------------------\n`;
+                data.matches.forEach((match, index) => {
+                    reportContent += `${index + 1}. "${match.pattern_info.pattern}"\n`;
+                    reportContent += `   Categoría: ${match.pattern_info.category}\n`;
+                    reportContent += `   Severidad: ${match.pattern_info.severity}\n`;
+                    reportContent += `   Algoritmo usado: ${match.algorithm_used}\n`;
+                    reportContent += `   Coincidencias: ${match.total_matches}\n`;
+                    reportContent += `   Posiciones: ${match.positions.join(', ')}\n`;
+                    reportContent += `   Descripción: ${match.pattern_info.description}\n\n`;
+                });
+            }
+            
+            reportContent += `RESUMEN: ${data.analysis_summary}\n\n`;
+            reportContent += `---\n`;
+            reportContent += `Reporte generado por SafeText - Sistema de Detección de Ciberacoso\n`;
+            reportContent += `Desarrollado por Harry Guajan y Joel Tinitana - EPN 2025`;
+            
+            // Crear y descargar archivo
+            const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reporte_ciberacoso_${Date.now()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            alert('Reporte exportado exitosamente');
+        }
+        
+        // Función para guardar resultados
+        function saveAnalysisResults() {
+            const results = localStorage.getItem('analysisResults');
+            if (results) {
+                alert('Resultados guardados en el navegador exitosamente');
+            } else {
+                alert('No hay resultados para guardar');
+            }
+        }
         
         // Animación de entrada para las tarjetas
         document.addEventListener('DOMContentLoaded', function() {
@@ -216,8 +283,8 @@
                 document.getElementById('word-count').textContent = wordCount;
                 document.getElementById('line-count').textContent = lineCount;
                 
-                // Simular análisis básico
-                performBasicAnalysis(analyzedText);
+                // Realizar análisis real con el backend
+                performRealAnalysis(analyzedText);
             } else {
                 // Si no hay texto, mostrar mensaje y redirigir
                 alert('No hay texto para analizar. Será redirigido al inicio.');
@@ -225,7 +292,367 @@
             }
         }
 
-        // Función para realizar análisis básico del texto
+        // Función para realizar análisis real con el backend
+        async function performRealAnalysis(text) {
+            try {
+                // Mostrar indicador de carga
+                showLoadingState();
+                
+                // Llamar al backend para análisis
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error en el análisis');
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayAnalysisResults(data.result);
+                } else {
+                    throw new Error(data.error || 'Error desconocido');
+                }
+                
+            } catch (error) {
+                console.error('Error en el análisis:', error);
+                // Fallback al análisis básico si hay error
+                performBasicAnalysis(text);
+                alert('Usando análisis básico - Servidor no disponible');
+            }
+        }
+
+        // Función para mostrar estado de carga
+        function showLoadingState() {
+            const patternsList = document.getElementById('patterns-list');
+            patternsList.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Analizando texto con algoritmos KMP y Boyer-Moore...</p>
+                </div>
+            `;
+        }
+
+        // Función para mostrar los resultados del análisis real
+        function displayAnalysisResults(result) {
+            // Actualizar porcentajes
+            updatePercentages(result);
+            
+            // Mostrar patrones detectados
+            displayDetectedPatterns(result);
+            
+            // Generar recomendaciones dinámicas
+            generateDynamicRecommendations(result);
+            
+            // Guardar resultados para exportación
+            localStorage.setItem('analysisResults', JSON.stringify(result));
+        }
+
+        // Función para actualizar porcentajes basados en el análisis real
+        function updatePercentages(result) {
+            let safePercentage, warningPercentage, dangerPercentage;
+            
+            if (!result.is_cyberbullying) {
+                safePercentage = 100;
+                warningPercentage = 0;
+                dangerPercentage = 0;
+            } else {
+                // Calcular porcentajes basados en el nivel de riesgo
+                switch (result.risk_level) {
+                    case 'Low':
+                        safePercentage = 70;
+                        warningPercentage = 30;
+                        dangerPercentage = 0;
+                        break;
+                    case 'Medium':
+                        safePercentage = 50;
+                        warningPercentage = 40;
+                        dangerPercentage = 10;
+                        break;
+                    case 'High':
+                        safePercentage = 30;
+                        warningPercentage = 30;
+                        dangerPercentage = 40;
+                        break;
+                    case 'Critical':
+                        safePercentage = 10;
+                        warningPercentage = 20;
+                        dangerPercentage = 70;
+                        break;
+                    default:
+                        safePercentage = 90;
+                        warningPercentage = 10;
+                        dangerPercentage = 0;
+                }
+            }
+            
+            document.getElementById('safe-percentage').textContent = safePercentage + '%';
+            document.getElementById('warning-percentage').textContent = warningPercentage + '%';
+            document.getElementById('danger-percentage').textContent = dangerPercentage + '%';
+            
+            // Actualizar descripciones
+            updateRiskDescriptions(result);
+        }
+
+        // Función para mostrar patrones detectados reales
+        function displayDetectedPatterns(result) {
+            const patternsList = document.getElementById('patterns-list');
+            
+            if (!result.matches || result.matches.length === 0) {
+                patternsList.innerHTML = `
+                    <div class="no-patterns">
+                        <div class="no-patterns-icon">✅</div>
+                        <h4>No se detectaron patrones de ciberacoso</h4>
+                        <p>El texto analizado no contiene lenguaje que indique ciberacoso.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let patternsHTML = '';
+            
+            result.matches.forEach(match => {
+                const riskClass = getSeverityClass(match.pattern_info.severity);
+                const algorithmUsed = match.algorithm_used;
+                const patternInfo = match.pattern_info;
+                
+                patternsHTML += `
+                    <div class="pattern-item ${riskClass}">
+                        <div class="pattern-header">
+                            <span class="pattern-type">${patternInfo.category}</span>
+                            <span class="risk-level">Riesgo ${getSeverityText(patternInfo.severity)}</span>
+                            <span class="algorithm-used">Algoritmo: ${algorithmUsed}</span>
+                        </div>
+                        <div class="pattern-description">
+                            <p>${patternInfo.description}</p>
+                            <div class="pattern-matches">
+                                <strong>Patrón detectado:</strong>
+                                <span class="match-highlight">"${patternInfo.pattern}"</span>
+                                <span class="match-count">(${match.total_matches} coincidencia(s))</span>
+                            </div>
+                            <div class="match-positions">
+                                <strong>Posiciones:</strong> ${match.positions.join(', ')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            patternsList.innerHTML = patternsHTML;
+        }
+
+        // Función para generar recomendaciones dinámicas
+        function generateDynamicRecommendations(result) {
+            const recommendationsList = document.querySelector('.recommendation-list');
+            let recommendationsHTML = '';
+            
+            if (!result.is_cyberbullying) {
+                // Recomendaciones para contenido seguro
+                recommendationsHTML = `
+                    <div class="recommendation-item">
+                        <div class="rec-icon">✅</div>
+                        <div class="rec-content">
+                            <h4>Contenido Seguro</h4>
+                            <p>El texto analizado no muestra signos de ciberacoso. Continúe promoviendo una comunicación respetuosa.</p>
+                        </div>
+                    </div>
+                    <div class="recommendation-item">
+                        <div class="rec-icon">📚</div>
+                        <div class="rec-content">
+                            <h4>Educación Preventiva</h4>
+                            <p>Mantenga programas de concientización sobre comunicación digital responsable para prevenir futuros incidentes.</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Recomendaciones basadas en el nivel de riesgo
+                switch (result.risk_level) {
+                    case 'Low':
+                        recommendationsHTML = `
+                            <div class="recommendation-item">
+                                <div class="rec-icon">👀</div>
+                                <div class="rec-content">
+                                    <h4>Monitoreo Preventivo</h4>
+                                    <p>Se detectó contenido de riesgo bajo. Realice seguimiento y eduque sobre comunicación apropiada.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">💬</div>
+                                <div class="rec-content">
+                                    <h4>Diálogo Constructivo</h4>
+                                    <p>Promueva conversaciones sobre respeto digital y las consecuencias del lenguaje inapropiado.</p>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'Medium':
+                        recommendationsHTML = `
+                            <div class="recommendation-item">
+                                <div class="rec-icon">⚠️</div>
+                                <div class="rec-content">
+                                    <h4>Intervención Moderada</h4>
+                                    <p>Se requiere atención inmediata. Contacte a los involucrados y establezca medidas correctivas.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">📋</div>
+                                <div class="rec-content">
+                                    <h4>Documentación</h4>
+                                    <p>Documente el incidente y establezca un plan de seguimiento para prevenir escalación.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">👨‍🏫</div>
+                                <div class="rec-content">
+                                    <h4>Capacitación Específica</h4>
+                                    <p>Implemente sesiones de capacitación sobre ciberacoso y sus consecuencias.</p>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'High':
+                        recommendationsHTML = `
+                            <div class="recommendation-item">
+                                <div class="rec-icon">🚨</div>
+                                <div class="rec-content">
+                                    <h4>Acción Inmediata Requerida</h4>
+                                    <p>Nivel de riesgo alto detectado. Intervenga inmediatamente y contacte a autoridades si es necesario.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">👥</div>
+                                <div class="rec-content">
+                                    <h4>Involucrar a Padres/Tutores</h4>
+                                    <p>Contacte a los padres o tutores de todos los involucrados para abordar la situación.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">🛡️</div>
+                                <div class="rec-content">
+                                    <h4>Medidas de Protección</h4>
+                                    <p>Implemente medidas de protección para la víctima y sanciones apropiadas para el agresor.</p>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'Critical':
+                        recommendationsHTML = `
+                            <div class="recommendation-item">
+                                <div class="rec-icon">🆘</div>
+                                <div class="rec-content">
+                                    <h4>Emergencia - Acción Crítica</h4>
+                                    <p>Nivel crítico de ciberacoso detectado. Contacte inmediatamente a autoridades y servicios de apoyo psicológico.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">📞</div>
+                                <div class="rec-content">
+                                    <h4>Contactar Autoridades</h4>
+                                    <p>Reporte el incidente a las autoridades competentes y preserve evidencia digital.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">💚</div>
+                                <div class="rec-content">
+                                    <h4>Apoyo Psicológico</h4>
+                                    <p>Proporcione apoyo psicológico inmediato a la víctima y considere intervención profesional.</p>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                }
+                
+                // Agregar información sobre algoritmos utilizados
+                const algorithmsUsed = result.algorithms_used || {};
+                const algorithmInfo = Object.keys(algorithmsUsed).join(', ');
+                
+                recommendationsHTML += `
+                    <div class="recommendation-item">
+                        <div class="rec-icon">🔬</div>
+                        <div class="rec-content">
+                            <h4>Análisis Técnico</h4>
+                            <p>Algoritmo(s) utilizados: ${algorithmInfo}. Total de patrones: ${result.total_patterns_found}. Coincidencias: ${result.total_matches}.</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            recommendationsList.innerHTML = recommendationsHTML;
+        }
+
+        // Funciones auxiliares
+        function getSeverityClass(severity) {
+            switch (severity) {
+                case 'Low': return 'low-risk';
+                case 'Medium': return 'medium-risk';
+                case 'High': return 'high-risk';
+                case 'Critical': return 'critical-risk';
+                default: return 'low-risk';
+            }
+        }
+
+        function getSeverityText(severity) {
+            switch (severity) {
+                case 'Low': return 'Bajo';
+                case 'Medium': return 'Medio';
+                case 'High': return 'Alto';
+                case 'Critical': return 'Crítico';
+                default: return 'Bajo';
+            }
+        }
+
+        // Función para actualizar descripciones según el nivel de riesgo
+        function updateRiskDescriptions(result) {
+            const safeCard = document.querySelector('.summary-card.safe .description');
+            const warningCard = document.querySelector('.summary-card.warning .description');
+            const dangerCard = document.querySelector('.summary-card.danger .description');
+            
+            if (!result.is_cyberbullying) {
+                safeCard.textContent = 'No se detectaron patrones de ciberacoso';
+                warningCard.textContent = 'Sin contenido sospechoso';
+                dangerCard.textContent = 'Sin contenido peligroso';
+            } else {
+                const patternsCount = result.total_patterns_found;
+                const matchesCount = result.total_matches;
+                
+                switch (result.risk_level) {
+                    case 'Low':
+                        safeCard.textContent = 'Mayormente seguro con observaciones menores';
+                        warningCard.textContent = `${patternsCount} patrón(es) de riesgo bajo detectado(s)`;
+                        dangerCard.textContent = 'Sin contenido altamente peligroso';
+                        break;
+                    case 'Medium':
+                        safeCard.textContent = 'Contenido con riesgos moderados';
+                        warningCard.textContent = `${patternsCount} patrón(es) requieren atención`;
+                        dangerCard.textContent = 'Algunos patrones de riesgo medio detectados';
+                        break;
+                    case 'High':
+                        safeCard.textContent = 'Contenido con alto riesgo de ciberacoso';
+                        warningCard.textContent = `${patternsCount} patrones problemáticos detectados`;
+                        dangerCard.textContent = `${matchesCount} coincidencias de alto riesgo`;
+                        break;
+                    case 'Critical':
+                        safeCard.textContent = 'Contenido extremadamente peligroso';
+                        warningCard.textContent = 'Múltiples patrones críticos detectados';
+                        dangerCard.textContent = `${matchesCount} patrones de ciberacoso confirmados`;
+                        break;
+                    default:
+                        safeCard.textContent = 'Contenido analizado sin clasificación';
+                        warningCard.textContent = `${patternsCount} patrón(es) detectado(s)`;
+                        dangerCard.textContent = 'Revisar manualmente';
+                }
+            }
+        }
+
+        // Función de fallback para análisis básico
         function performBasicAnalysis(text) {
             // Palabras potencialmente problemáticas (básico)
             const problematicWords = [
@@ -253,42 +680,26 @@
                 }
             });
             
-            // Actualizar porcentajes basados en el análisis
-            const safePercentage = Math.max(0, 100 - riskLevel);
-            const warningPercentage = Math.min(riskLevel, 50);
-            const dangerPercentage = Math.max(0, riskLevel - 50);
+            // Crear objeto de resultado simulado
+            const simulatedResult = {
+                is_cyberbullying: foundPatterns.length > 0,
+                risk_level: riskLevel >= 60 ? 'Critical' : riskLevel >= 40 ? 'High' : riskLevel >= 20 ? 'Medium' : riskLevel > 0 ? 'Low' : 'None',
+                total_patterns_found: foundPatterns.length,
+                total_matches: foundPatterns.length,
+                matches: foundPatterns.map(pattern => ({
+                    pattern_info: {
+                        pattern: pattern,
+                        category: 'Análisis Básico',
+                        severity: riskLevel >= 60 ? 'Critical' : riskLevel >= 40 ? 'High' : riskLevel >= 20 ? 'Medium' : 'Low',
+                        description: 'Detección básica sin conexión al servidor'
+                    },
+                    algorithm_used: 'Análisis Local',
+                    total_matches: 1,
+                    positions: [0]
+                }))
+            };
             
-            document.getElementById('safe-percentage').textContent = safePercentage + '%';
-            document.getElementById('warning-percentage').textContent = warningPercentage + '%';
-            document.getElementById('danger-percentage').textContent = dangerPercentage + '%';
-            
-            // Actualizar descripciones según el riesgo
-            updateRiskDescriptions(riskLevel, foundPatterns.length);
-        }
-
-        // Función para actualizar descripciones según el nivel de riesgo
-        function updateRiskDescriptions(riskLevel, patternsFound) {
-            const safeCard = document.querySelector('.summary-card.safe .description');
-            const warningCard = document.querySelector('.summary-card.warning .description');
-            const dangerCard = document.querySelector('.summary-card.danger .description');
-            
-            if (riskLevel === 0) {
-                safeCard.textContent = 'No se detectaron patrones de ciberacoso';
-                warningCard.textContent = 'Sin contenido sospechoso';
-                dangerCard.textContent = 'Sin contenido peligroso';
-            } else if (riskLevel <= 30) {
-                safeCard.textContent = 'Mayormente seguro con observaciones menores';
-                warningCard.textContent = `${patternsFound} patrón(es) de riesgo bajo detectado(s)`;
-                dangerCard.textContent = 'Sin contenido altamente peligroso';
-            } else if (riskLevel <= 60) {
-                safeCard.textContent = 'Contenido con riesgos moderados';
-                warningCard.textContent = `${patternsFound} patrón(es) requieren atención`;
-                dangerCard.textContent = 'Algunos patrones de alto riesgo detectados';
-            } else {
-                safeCard.textContent = 'Contenido con alto riesgo de ciberacoso';
-                warningCard.textContent = 'Múltiples patrones problemáticos';
-                dangerCard.textContent = `${patternsFound} patrones de ciberacoso confirmados`;
-            }
+            displayAnalysisResults(simulatedResult);
         }
     </script>
 </body>

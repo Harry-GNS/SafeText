@@ -29,6 +29,21 @@ def index():
     """Redirige a la página principal del frontend."""
     return send_from_directory('templates', 'index.html')
 
+@app.route('/index.html')
+def index_page():
+    """Sirve la página principal."""
+    return send_from_directory('templates', 'index.html')
+
+@app.route('/config.html')
+def config_page():
+    """Sirve la página de configuración."""
+    return send_from_directory('templates', 'config.html')
+
+@app.route('/resultados.html')
+def results_page():
+    """Sirve la página de resultados."""
+    return send_from_directory('templates', 'resultados.html')
+
 @app.route('/templates/<path:filename>')
 def serve_templates(filename):
     """Sirve archivos de templates."""
