@@ -1,0 +1,27 @@
+{
+  "name": "SafeText - Cyberbullying Detection System",
+  "description": "Sistema de detección de ciberacoso usando algoritmos KMP y Boyer-Moore",
+  "repository": "https://github.com/Harry-GNS/Proyecto-EDA-Segundo-Bimestre",
+  "keywords": ["flask", "python", "cyberbullying", "kmp", "boyer-moore", "algorithms", "education"],
+  "env": {
+    "FLASK_ENV": {
+      "description": "Flask environment",
+      "value": "production"
+    },
+    "PORT": {
+      "description": "Port for the application",
+      "value": "5000"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
