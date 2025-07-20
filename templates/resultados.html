@@ -384,6 +384,22 @@
             font-style: italic;
         }
 
+        /* Estilos para las categorías en el resumen */
+        #categories-list {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        /* Mejorar tooltips de patrones resaltados */
+        .highlighted-pattern {
+            cursor: help;
+            position: relative;
+        }
+
+        .highlighted-pattern:hover {
+            opacity: 0.8;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .recommendations-grid {
@@ -494,6 +510,10 @@
                             <span class="summary-value" id="matches-count">0</span>
                         </div>
                         <div class="summary-item">
+                            <span class="summary-label">Categorías detectadas:</span>
+                            <span class="summary-value" id="categories-list">N/A</span>
+                        </div>
+                        <div class="summary-item">
                             <span class="summary-label">Algoritmos usados:</span>
                             <span class="summary-value" id="algorithms-list">N/A</span>
                         </div>
@@ -577,7 +597,14 @@
             reportContent += `¿Es ciberacoso?: ${data.is_cyberbullying ? 'SÍ' : 'NO'}\n`;
             reportContent += `Nivel de riesgo: ${data.risk_level}\n`;
             reportContent += `Patrones detectados: ${data.total_patterns_found}\n`;
-            reportContent += `Total de coincidencias: ${data.total_matches}\n\n`;
+            reportContent += `Total de coincidencias: ${data.total_matches}\n`;
+            
+            // Agregar categorías detectadas al reporte
+            if (data.matches && data.matches.length > 0) {
+                const categoriesFound = [...new Set(data.matches.map(match => match.pattern_info.category))];
+                reportContent += `Categorías detectadas: ${categoriesFound.join(', ')}\n`;
+            }
+            reportContent += `\n`;
             
             if (data.matches && data.matches.length > 0) {
                 reportContent += `PATRONES DETECTADOS:\n`;
@@ -889,7 +916,7 @@
                 const after = highlightedText.substring(end);
                 
                 highlightedText = before + 
-                    `<span class="highlighted-pattern ${severityClass}" title="${match.category}: ${match.pattern}">${highlighted}</span>` + 
+                    `<span class="highlighted-pattern ${severityClass}" title="Categoría: ${match.category} | Patrón: '${match.pattern}' | Severidad: ${match.severity}">${highlighted}</span>` + 
                     after;
             });
             
@@ -900,6 +927,15 @@
         function updateDetectionSummary(result) {
             document.getElementById('patterns-count').textContent = result.total_patterns_found || 0;
             document.getElementById('matches-count').textContent = result.total_matches || 0;
+            
+            // Mostrar categorías detectadas
+            if (result.matches && result.matches.length > 0) {
+                const categoriesFound = [...new Set(result.matches.map(match => match.pattern_info.category))];
+                const categoriesText = categoriesFound.length > 0 ? categoriesFound.join(', ') : 'N/A';
+                document.getElementById('categories-list').textContent = categoriesText;
+            } else {
+                document.getElementById('categories-list').textContent = 'N/A';
+            }
             
             // Mostrar algoritmos usados
             const algorithmsUsed = result.algorithms_used || {};
