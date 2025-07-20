@@ -1,0 +1,21 @@
+# Configuración para Railway
+# Esta configuración hace que tu app sea eficiente con los créditos
+
+[build]
+# Usar Python 3.11
+builder = "NIXPACKS"
+
+[deploy]
+# Comando para iniciar la aplicación
+startCommand = "python main.py"
+
+# Variables de entorno para optimización
+[deploy.envVars]
+FLASK_ENV = "production"
+PYTHONUNBUFFERED = "1"
+
+# Configuración de sleep automático
+[deploy.sleepMode]
+# La app se dormirá automáticamente después de 15 minutos sin tráfico
+enabled = true
+sleepAfter = "15m"
