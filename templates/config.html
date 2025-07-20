@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeText - Configuración de Patrones</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>SafeText <span class="subtitle">Sistema de Detección de Ciberacoso Escolar</span></h1>
+        </div>
+        <div class="header-year">
+            <span>EPN 2025</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="config-container">
+            <!-- Navegación -->
+            <div class="config-nav">
+                <a href="index.html" class="btn-back">← Volver al Inicio</a>
+                <h2>Configuración de Patrones</h2>
+            </div>
+
+            <!-- Sección de patrones a detectar -->
+            <div class="patterns-section">
+                <h3>Patrones a detectar</h3>
+                
+                <div class="table-container">
+                    <table class="patterns-table" id="patterns-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Mensaje</th>
+                                <th>Gravedad</th>
+                                <th>Categoría</th>
+                                <th>Etiqueta</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patterns-tbody">
+                            <!-- Los patrones se cargarán dinámicamente aquí -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                <div class="pagination" id="pagination">
+                    <button class="pagination-btn" onclick="changePage(1)">1</button>
+                    <button class="pagination-btn active" onclick="changePage(2)">2</button>
+                    <button class="pagination-btn" onclick="changePage(3)">3</button>
+                    <button class="pagination-btn" onclick="changePage(4)">4</button>
+                    <button class="pagination-btn" onclick="changePage(5)">5</button>
+                    <button class="pagination-btn" onclick="changePage(6)">6</button>
+                    <button class="pagination-btn" onclick="changePage(7)">7</button>
+                    <button class="pagination-btn" onclick="changePage(8)">8</button>
+                    <button class="pagination-btn" onclick="changePage(9)">9</button>
+                </div>
+            </div>
+
+            <!-- Sección para añadir patrón -->
+            <div class="add-pattern-section">
+                <h3>Añadir Patrón</h3>
+                
+                <div class="add-pattern-form">
+                    <table class="add-pattern-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Mensaje</th>
+                                <th>Gravedad</th>
+                                <th>Categoría</th>
+                                <th>Etiqueta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="number" id="new-id" class="form-input" readonly></td>
+                                <td><input type="text" id="new-mensaje" class="form-input" placeholder="Escriba el patrón a detectar"></td>
+                                <td>
+                                    <select id="new-gravedad" class="form-input">
+                                        <option value="Bajo">Bajo</option>
+                                        <option value="Medio">Medio</option>
+                                        <option value="Alto">Alto</option>
+                                        <option value="Muy Alto">Muy Alto</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select id="new-categoria" class="form-input">
+                                        <option value="Insulto">Insulto</option>
+                                        <option value="Amenaza">Amenaza</option>
+                                        <option value="Despectivo">Despectivo</option>
+                                        <option value="Exclusión">Exclusión</option>
+                                        <option value="Apariencia">Apariencia</option>
+                                        <option value="Agresivo">Agresivo</option>
+                                        <option value="Rechazo">Rechazo</option>
+                                        <option value="Emocional">Emocional</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select id="new-etiqueta" class="form-input">
+                                        <option value="Ofensivo">Ofensivo</option>
+                                        <option value="Físico">Físico</option>
+                                        <option value="Social">Social</option>
+                                        <option value="Personal">Personal</option>
+                                        <option value="Violento">Violento</option>
+                                        <option value="Verbal">Verbal</option>
+                                        <option value="Negativo">Negativo</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="form-actions">
+                        <button class="btn-add" id="add-pattern-btn">Añadir</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="config-actions">
+                <button class="btn-secondary" id="reset-btn">Restablecer</button>
+                <button class="btn-secondary" id="save-btn">Guardar</button>
+                <button class="btn-primary" id="back-btn">Volver</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Pie de página -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 SafeText - Sistema de Detección de Ciberacoso Escolar</p>
+            <p>Creado por <strong>Harry Guajan</strong> y <strong>Joel Tinitana</strong></p>
+            <p>Escuela Politécnica Nacional (EPN) - Estructura de Datos y Algoritmos II</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Términos de Uso</a>
+                <span class="separator">•</span>
+                <a href="#" class="footer-link">Política de Privacidad</a>
+                <span class="separator">•</span>
+                <a href="#" class="footer-link">Contacto</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Datos simulados basados en el CSV
+        let patterns = [
+            {id: 1, mensaje: "idiota", gravedad: "Alto", categoria: "Insulto", etiqueta: "Ofensivo"},
+            {id: 2, mensaje: "estúpido", gravedad: "Alto", categoria: "Insulto", etiqueta: "Ofensivo"},
+            {id: 3, mensaje: "imbécil", gravedad: "Alto", categoria: "Insulto", etiqueta: "Ofensivo"},
+            {id: 4, mensaje: "tonto", gravedad: "Medio", categoria: "Insulto", etiqueta: "Ofensivo"},
+            {id: 5, mensaje: "feo", gravedad: "Bajo", categoria: "Apariencia", etiqueta: "Físico"},
+            {id: 6, mensaje: "gordo", gravedad: "Medio", categoria: "Apariencia", etiqueta: "Físico"},
+            {id: 7, mensaje: "perdedor", gravedad: "Medio", categoria: "Despectivo", etiqueta: "Social"},
+            {id: 8, mensaje: "fracasado", gravedad: "Alto", categoria: "Despectivo", etiqueta: "Social"},
+            {id: 9, mensaje: "inútil", gravedad: "Alto", categoria: "Despectivo", etiqueta: "Personal"},
+            {id: 10, mensaje: "nadie te quiere", gravedad: "Alto", categoria: "Exclusión", etiqueta: "Social"},
+            {id: 11, mensaje: "vete a morir", gravedad: "Muy Alto", categoria: "Amenaza", etiqueta: "Violento"},
+            {id: 12, mensaje: "te voy a pegar", gravedad: "Muy Alto", categoria: "Amenaza", etiqueta: "Físico"},
+            {id: 13, mensaje: "cállate", gravedad: "Medio", categoria: "Agresivo", etiqueta: "Verbal"},
+            {id: 14, mensaje: "déjame en paz", gravedad: "Bajo", categoria: "Rechazo", etiqueta: "Social"},
+            {id: 15, mensaje: "no me hables", gravedad: "Bajo", categoria: "Rechazo", etiqueta: "Social"}
+        ];
+
+        let currentPage = 1;
+        const patternsPerPage = 9;
+
+        function loadPatterns() {
+            const tbody = document.getElementById('patterns-tbody');
+            tbody.innerHTML = '';
+            
+            const startIndex = (currentPage - 1) * patternsPerPage;
+            const endIndex = startIndex + patternsPerPage;
+            const patternsToShow = patterns.slice(startIndex, endIndex);
+            
+            patternsToShow.forEach(pattern => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${pattern.id}</td>
+                    <td>${pattern.mensaje}</td>
+                    <td><span class="gravity-badge ${pattern.gravedad.toLowerCase().replace(' ', '-')}">${pattern.gravedad}</span></td>
+                    <td>${pattern.categoria}</td>
+                    <td>${pattern.etiqueta}</td>
+                    <td>
+                        <button class="btn-action edit-btn" onclick="editPattern(${pattern.id})">✏️</button>
+                        <button class="btn-action delete-btn" onclick="deletePattern(${pattern.id})">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            updateNewId();
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            loadPatterns();
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const paginationBtns = document.querySelectorAll('.pagination-btn');
+            paginationBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (parseInt(btn.textContent) === currentPage) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function updateNewId() {
+            const maxId = Math.max(...patterns.map(p => p.id));
+            document.getElementById('new-id').value = maxId + 1;
+        }
+
+        function addPattern() {
+            const mensaje = document.getElementById('new-mensaje').value.trim();
+            const gravedad = document.getElementById('new-gravedad').value;
+            const categoria = document.getElementById('new-categoria').value;
+            const etiqueta = document.getElementById('new-etiqueta').value;
+            
+            if (!mensaje) {
+                alert('Por favor, ingrese un mensaje para el patrón');
+                return;
+            }
+            
+            const newPattern = {
+                id: parseInt(document.getElementById('new-id').value),
+                mensaje: mensaje,
+                gravedad: gravedad,
+                categoria: categoria,
+                etiqueta: etiqueta
+            };
+            
+            patterns.push(newPattern);
+            
+            // Limpiar formulario
+            document.getElementById('new-mensaje').value = '';
+            document.getElementById('new-gravedad').selectedIndex = 0;
+            document.getElementById('new-categoria').selectedIndex = 0;
+            document.getElementById('new-etiqueta').selectedIndex = 0;
+            
+            loadPatterns();
+            alert('Patrón añadido exitosamente');
+        }
+
+        function editPattern(id) {
+            const pattern = patterns.find(p => p.id === id);
+            if (pattern) {
+                const newMessage = prompt('Editar mensaje:', pattern.mensaje);
+                if (newMessage && newMessage.trim()) {
+                    pattern.mensaje = newMessage.trim();
+                    loadPatterns();
+                    alert('Patrón actualizado');
+                }
+            }
+        }
+
+        function deletePattern(id) {
+            if (confirm('¿Está seguro de que desea eliminar este patrón?')) {
+                patterns = patterns.filter(p => p.id !== id);
+                loadPatterns();
+                alert('Patrón eliminado');
+            }
+        }
+
+        function resetPatterns() {
+            if (confirm('¿Está seguro de que desea restablecer todos los patrones?')) {
+                location.reload();
+            }
+        }
+
+        function savePatterns() {
+            // Aquí iría la lógica para guardar en el CSV
+            alert('Patrones guardados exitosamente');
+        }
+
+        // Event Listeners
+        document.getElementById('add-pattern-btn').addEventListener('click', addPattern);
+        document.getElementById('reset-btn').addEventListener('click', resetPatterns);
+        document.getElementById('save-btn').addEventListener('click', savePatterns);
+        document.getElementById('back-btn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Cargar patrones al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPatterns();
+            updatePagination();
+        });
+    </script>
+</body>
+</html>

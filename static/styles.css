@@ -724,3 +724,327 @@ footer {
         max-width: 300px;
     }
 }
+
+/* ========================= */
+/* ESTILOS PÁGINA CONFIG */
+/* ========================= */
+
+.config-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Navegación de configuración */
+.config-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+}
+
+.config-nav h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin: 0;
+}
+
+/* Sección de patrones */
+.patterns-section {
+    margin-bottom: 40px;
+}
+
+.patterns-section h3 {
+    font-size: 1.4rem;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.table-container {
+    background: white;
+    border: 2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.patterns-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.patterns-table thead {
+    background-color: #26282a;
+    color: white;
+}
+
+.patterns-table th,
+.patterns-table td {
+    padding: 12px 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.patterns-table th {
+    font-weight: bold;
+    text-align: center;
+}
+
+.patterns-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.patterns-table tbody tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+.patterns-table tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+.patterns-table td:first-child {
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+}
+
+.gravity-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+}
+
+.gravity-badge.bajo {
+    background-color: #28a745;
+}
+
+.gravity-badge.medio {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.gravity-badge.alto {
+    background-color: #fd7e14;
+}
+
+.gravity-badge.muy-alto {
+    background-color: #dc3545;
+}
+
+.btn-action {
+    background: none;
+    border: none;
+    padding: 5px;
+    margin: 0 2px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-action:hover {
+    background-color: #f0f0f0;
+}
+
+.edit-btn:hover {
+    background-color: #e3f2fd;
+}
+
+.delete-btn:hover {
+    background-color: #ffebee;
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 30px;
+}
+
+.pagination-btn {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.pagination-btn:hover {
+    background-color: #f0f0f0;
+    border-color: #999;
+}
+
+.pagination-btn.active {
+    background-color: #26282a;
+    color: white;
+    border-color: #26282a;
+}
+
+/* Sección añadir patrón */
+.add-pattern-section {
+    margin-bottom: 40px;
+}
+
+.add-pattern-section h3 {
+    font-size: 1.4rem;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.add-pattern-form {
+    background: white;
+    border: 2px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.add-pattern-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.add-pattern-table thead {
+    background-color: #26282a;
+    color: white;
+}
+
+.add-pattern-table th {
+    padding: 12px 8px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.add-pattern-table td {
+    padding: 15px 8px;
+    background-color: #f8f9fa;
+}
+
+.form-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    background-color: white;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #26282a;
+    box-shadow: 0 0 0 2px rgba(38, 40, 42, 0.1);
+}
+
+.form-input[readonly] {
+    background-color: #e9ecef;
+    color: #6c757d;
+}
+
+.form-actions {
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+}
+
+.btn-add {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-add:hover {
+    background-color: #218838;
+}
+
+/* Acciones de configuración */
+.config-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.config-actions .btn-secondary,
+.config-actions .btn-primary {
+    margin: 0;
+    display: inline-block;
+    min-width: 120px;
+}
+
+/* Responsive para configuración */
+@media (max-width: 768px) {
+    .config-nav {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .config-nav h2 {
+        font-size: 1.5rem;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .patterns-table {
+        min-width: 600px;
+    }
+    
+    .patterns-table th,
+    .patterns-table td {
+        padding: 8px 4px;
+        font-size: 12px;
+    }
+    
+    .add-pattern-table {
+        min-width: 600px;
+    }
+    
+    .form-input {
+        padding: 6px 8px;
+        font-size: 12px;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+        gap: 3px;
+    }
+    
+    .pagination-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    .config-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .config-actions button {
+        width: 100%;
+        max-width: 250px;
+    }
+}
