@@ -1,3 +1,11 @@
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Pattern Matching](https://img.shields.io/badge/Pattern%20Matching-KMP%20%7C%20Boyer--Moore-orange)
+![Web](https://img.shields.io/badge/Web-HTML%20%7C%20CSS%20%7C%20JS-lightgrey)
+
+# 🛡️ Sistema de Detección de Ciberacoso Escolar
+
+> Un sistema web  que utiliza algoritmos de búsqueda de patrones para detectar y prevenir el ciberacoso en entornos educativos.
 # 🛡️ Sistema de Detección de Ciberacoso Escolar
 
 > Un sistema web  que utiliza algoritmos de búsqueda de patrones para detectar y prevenir el ciberacoso en entornos educativos.
@@ -11,7 +19,7 @@
 
 ## 📋 Descripción del Proyecto
 
-Este proyecto implementa un sistema de detección automática de ciberacoso dirigido específicamente al entorno escolar. Utiliza algoritmos clásicos de búsqueda de patrones (KMP y Boyer-Moore) para identificar contenido ofensivo, amenazas e insultos en mensajes de texto, proporcionando una herramienta valiosa para educadores, orientadores y administradores escolares.
+Este proyecto implementa un sistema de detección  de ciberacoso dirigido  al entorno escolar. Utiliza algoritmos clásicos de búsqueda de patrones (KMP y Boyer-Moore) para identificar contenido ofensivo, amenazas e insultos en mensajes de texto, proporcionando una herramienta valiosa para educadores, orientadores y administradores escolares.
 
 ### 🎯 Objetivo Principal
 
@@ -23,32 +31,51 @@ Desarrollar una aplicación web que permita analizar mensajes de texto en tiempo
 
 ### 🔍 Detección Inteligente
 - **Algoritmos KMP y Boyer-Moore** para búsqueda eficiente de patrones
-- **Base de datos de patrones** configurable con insultos, amenazas y exclusión social
-- **Clasificación por gravedad**: Bajo, Medio, Alto
+- **Base de datos de 115 patrones** configurables con insultos, amenazas, exclusión social y acoso sexual
+- **Clasificación por severidad**: Low, Medium, High, Critical (0-100 puntos)
 - **Detección insensible a mayúsculas/minúsculas**
+- **Selector automático de algoritmo** basado en características del patrón
 
-### 🌐 Interfaz Web Intuitiva
-- **Formulario de análisis** para pegar texto directamente
-- **Carga de archivos** para analizar múltiples mensajes
-- **Resultados detallados** con patrones detectados y recomendaciones
-- **Panel de administración** para gestionar patrones de detección
+### 🌐 Interfaz Web Moderna
+- **Análisis en tiempo real** con feedback visual inmediato
+- **Texto resaltado** mostrando patrones detectados con tooltips informativos
+- **Cálculo inteligente de porcentajes** considerando densidad de patrones y longitud del texto
+- **Sistema de recomendaciones personalizadas** basado en el tipo de riesgo detectado
+- **Exportación de reportes** detallados en formato texto
 
-### 📊 Sistema de Alertas
-- **Alertas codificadas por colores** según el nivel de gravedad
-- **Recomendaciones específicas** para cada tipo de incidente
-- **Posicionamiento exacto** de patrones detectados en el texto
+### 📊 Análisis Avanzado
+- **Categorización automática** por tipo de patrón (Insultos, Amenazas, Exclusión Social, Acoso Sexual)
+- **Algoritmos usados** mostrados transparentemente en cada detección
+- **Nivel de riesgo dinámico** calculado por múltiples factores
+- **Recomendaciones específicas** según severidad y categoría detectada
+
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
-| Tecnología | Propósito |
-|------------|-----------|
+| Tecnología | Propósito | Estado |
+|------------|-----------|---------|
+| **Python 3.8+** | Backend y algoritmos principales | ✅ Implementado |
+| **Flask** | Framework web y API RESTful | ✅ Implementado |
+| **HTML5 + CSS3** | Frontend moderno y responsivo | ✅ Implementado |
+| **JavaScript (Vanilla)** | Interactividad y llamadas a API | ✅ Implementado |
+| **CSV** | Base de datos de patrones | ✅ 115 patrones |
+| **Algoritmo KMP** | Búsqueda de patrones cortos | ✅ Implementado |
+| **Algoritmo Boyer-Moore** | Búsqueda de patrones largos | ✅ Implementado |
+
+### 🏗️ Arquitectura del Sistema
+- **Frontend**: SPA (Single Page Application) con navegación fluida
+- **Backend**: API REST con endpoints especializados
+- **Motor de Recomendaciones**: Sistema inteligente de sugerencias personalizadas
+- **Análisis**: Procesamiento en tiempo real con retroalimentación visual
 
 ---
 
 ## 📁 Estructura del Proyecto
 
+```
+```
 
 
 ---
@@ -61,65 +88,44 @@ Desarrollar una aplicación web que permita analizar mensajes de texto en tiempo
 - **Administradores educativos**
 - **Padres de familia** (con adaptación)
 
-### 🔄 Flujo de Uso
-
-1. **🌐 Acceso a la aplicación**
-   - Abrir navegador en `http://localhost:5000`
-   - Interfaz principal con formulario de análisis
-
-2. **📝 Ingreso de contenido**
-   - **Opción A**: Pegar texto directamente en el área de texto
-   - **Opción B**: Cargar archivo `.txt` con múltiples mensajes
-   
-   *Ejemplo de texto a analizar:*
-   ```
-   "Nadie te quiere aquí. Mejor vete del grupo y no vuelvas más."
-   ```
-
-3. **🔍 Análisis automático**
-   - Presionar botón **"Analizar Mensaje"**
-   - El sistema procesa el texto con ambos algoritmos
-   - Comparación contra base de datos de patrones
-
-4. **📊 Visualización de resultados**
-   - **Patrones detectados** con posición exacta
-   - **Nivel de alerta** (🟢 Bajo, 🟡 Medio, 🔴 Alto)
-   - **Recomendaciones específicas** de acción
-   - **Estadísticas** del análisis
-
-### 🎛️ Panel de Administración
-
-- **Gestión de patrones**: Agregar, editar, eliminar
-- **Configuración de alertas**: Ajustar niveles de gravedad
-- **Historial de análisis**: Revisar casos anteriores
-
----
-
-## 📈 Ejemplo de Resultados
-
-**Texto analizado:**
-> "No la inviten más, nadie la soporta, es una tonta."
-
-**Detecciones:**
-| Patrón | Posición | Tipo | Nivel | Algoritmo |
-|--------|----------|------|-------|-----------|
-| "nadie la soporta" | 17-32 | Exclusión social | 🟡 Medio | KMP |
-| "tonta" | 39-43 | Insulto personal | 🔴 Alto | Boyer-Moore |
-
-**Recomendación:** 
-🚨 *Revisar inmediatamente con orientador escolar. Posible caso de acoso grupal.*
-
 ---
 
 ## 🧪 Casos de Prueba
 
-El sistema incluye una batería completa de pruebas con:
+El sistema ha sido probado  con:
+
+(Todavia no hemos hecho pruebas exaustas)
 
 
 
 ---
 
-## 🔮 Funcionalidades Avanzadas (Futuras Mejoras)
+##  Estado del Desarrollo
+
+### ✅ **Funcionalidades Completadas**
+- ✅ Algoritmos KMP y Boyer-Moore implementados y optimizados
+- ✅ Sistema de análisis en tiempo real funcionando
+- ✅ Interface web moderna y responsiva
+- ✅ Motor de recomendaciones inteligentes personalizado
+- ✅ Base de datos de 115 patrones categorizados
+- ✅ Cálculo inteligente de porcentajes basado en densidad
+- ✅ Exportación de reportes detallados
+- ✅ API RESTful completa con todos los endpoints
+- ✅ Sistema de resaltado visual de patrones detectados
+- ✅ Categorización automática por tipo de patrón
+
+
+### 🚧 **Tareas Pendientes (Por Implementar)**
+- 🔄 **Visualización de patrones en opciones**: Mostrar la lista completa de 115 patrones en el panel de configuración
+- 🔄 **Mejorar decisión de recomendaciones**: Arreglar el algoritmo de selección de recomendaciones para mayor precisión contextual
+- 🔄 **Mejorar layout del resumen de análisis**: Optimizar la presentación visual de estadísticas y métricas
+- 🔄 **Gestión completa de patrones**: Implementar CRUD (crear, editar, eliminar) para patrones personalizados
+- 🔄 **Historial de análisis**: Sistema de almacenamiento y consulta de análisis anteriores
+
+
+---
+
+## �🔮 Funcionalidades Avanzadas (Futuras Mejoras Algun Dia)
 
 ### 🤖 Integración con IA
 - **Procesamiento de Lenguaje Natural (NLP)**
@@ -148,7 +154,6 @@ Este proyecto forma parte del curso **Estructura de Datos y Algoritmos II** y ti
 
 ---
 
-
 ## 🛡️ Consideraciones Éticas
 
 - **Privacidad**: Los mensajes no se almacenan permanentemente
@@ -169,19 +174,10 @@ Este es un proyecto académico desarrollado por estudiantes de EDA II. Las contr
 
 ---
 
-## 📞 Contacto
-
-Para consultas sobre este proyecto académico:
-
-- **Harry Guajan**: [email/contacto]
-- **Joel Tinitana**: [email/contacto]
-
----
 
 ## 📄 Licencia
 
-Este proyecto es desarrollado con fines académicos y educativos como parte del curso EDA II - Universidad [Nombre de la Universidad].
+Este proyecto es desarrollado con fines académicos y educativos como parte del curso EDA II - Escuela Politécnica Nacional (EPN).
 
 ---
 
-*"La tecnología al servicio de un entorno escolar más seguro e inclusivo"* 🎓✨
