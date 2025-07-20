@@ -514,6 +514,10 @@
                             <span class="summary-value" id="categories-list">N/A</span>
                         </div>
                         <div class="summary-item">
+                            <span class="summary-label">Densidad de patrones:</span>
+                            <span class="summary-value" id="pattern-density">N/A</span>
+                        </div>
+                        <div class="summary-item">
                             <span class="summary-label">Algoritmos usados:</span>
                             <span class="summary-value" id="algorithms-list">N/A</span>
                         </div>
@@ -928,6 +932,18 @@
             document.getElementById('patterns-count').textContent = result.total_patterns_found || 0;
             document.getElementById('matches-count').textContent = result.total_matches || 0;
             
+            // Calcular y mostrar densidad de patrones
+            const textLength = (localStorage.getItem('analyzedText') || '').trim();
+            const wordCount = textLength.split(/\s+/).filter(word => word.length > 0).length;
+            const patternCount = result.total_patterns_found || 0;
+            
+            if (wordCount > 0 && patternCount > 0) {
+                const density = ((patternCount / wordCount) * 100).toFixed(1);
+                document.getElementById('pattern-density').textContent = `${density}% (${patternCount}/${wordCount} palabras)`;
+            } else {
+                document.getElementById('pattern-density').textContent = '0%';
+            }
+            
             // Mostrar categorías detectadas
             if (result.matches && result.matches.length > 0) {
                 const categoriesFound = [...new Set(result.matches.map(match => match.pattern_info.category))];
@@ -954,32 +970,103 @@
                 warningPercentage = 0;
                 dangerPercentage = 0;
             } else {
-                // Calcular porcentajes basados en el nivel de riesgo
-                switch (result.risk_level) {
-                    case 'Low':
-                        safePercentage = 70;
-                        warningPercentage = 30;
-                        dangerPercentage = 0;
-                        break;
-                    case 'Medium':
-                        safePercentage = 50;
-                        warningPercentage = 40;
-                        dangerPercentage = 10;
-                        break;
-                    case 'High':
-                        safePercentage = 30;
-                        warningPercentage = 30;
-                        dangerPercentage = 40;
-                        break;
-                    case 'Critical':
-                        safePercentage = 10;
-                        warningPercentage = 20;
-                        dangerPercentage = 70;
-                        break;
-                    default:
-                        safePercentage = 90;
-                        warningPercentage = 10;
-                        dangerPercentage = 0;
+                // Calcular porcentajes inteligentes basados en múltiples factores
+                const textLength = (localStorage.getItem('analyzedText') || '').trim();
+                const wordCount = textLength.split(/\s+/).filter(word => word.length > 0).length;
+                const patternCount = result.total_patterns_found || 0;
+                const totalMatches = result.total_matches || 0;
+                
+                // Factor 1: Densidad de patrones (patrones únicos por palabra)
+                const patternDensity = wordCount > 0 ? (patternCount / wordCount) : 0;
+                
+                // Factor 2: Densidad de coincidencias (total matches por palabra)
+                const matchDensity = wordCount > 0 ? (totalMatches / wordCount) : 0;
+                
+                // Factor 3: Severidad promedio de los patrones
+                let averageSeverity = 0;
+                if (result.matches && result.matches.length > 0) {
+                    const severityValues = result.matches.map(match => {
+                        const severity = match.pattern_info.severity;
+                        if (typeof severity === 'string') {
+                            switch(severity.toLowerCase()) {
+                                case 'critical': return 100;
+                                case 'high': return 80;
+                                case 'medium': return 60;
+                                case 'low': return 40;
+                                default: return 50;
+                            }
+                        }
+                        return parseInt(severity) || 50;
+                    });
+                    averageSeverity = severityValues.reduce((sum, val) => sum + val, 0) / severityValues.length;
+                }
+                
+                // Factor 4: Modificador por longitud del texto
+                // Textos muy cortos son más peligrosos con los mismos patrones
+                let lengthModifier = 1.0;
+                if (wordCount <= 5) {
+                    lengthModifier = 1.5; // Textos muy cortos son más peligrosos
+                } else if (wordCount <= 15) {
+                    lengthModifier = 1.2; // Textos cortos son más peligrosos
+                } else if (wordCount <= 50) {
+                    lengthModifier = 1.0; // Textos normales
+                } else {
+                    lengthModifier = 0.8; // Textos largos son menos peligrosos proporcionalmente
+                }
+                
+                // Calcular puntuación base (0-100)
+                let dangerScore = 0;
+                
+                // Contribución de la densidad de patrones (máximo 40 puntos)
+                dangerScore += Math.min(patternDensity * 200, 40);
+                
+                // Contribución de la densidad de coincidencias (máximo 30 puntos)
+                dangerScore += Math.min(matchDensity * 150, 30);
+                
+                // Contribución de la severidad promedio (máximo 30 puntos)
+                dangerScore += (averageSeverity / 100) * 30;
+                
+                // Aplicar modificador por longitud
+                dangerScore *= lengthModifier;
+                
+                // Limitar a máximo 100
+                dangerScore = Math.min(dangerScore, 100);
+                
+                // Calcular porcentajes finales
+                if (dangerScore >= 70) {
+                    // Muy peligroso
+                    dangerPercentage = Math.round(dangerScore);
+                    warningPercentage = Math.round((100 - dangerScore) * 0.6);
+                    safePercentage = 100 - dangerPercentage - warningPercentage;
+                } else if (dangerScore >= 40) {
+                    // Moderadamente peligroso
+                    dangerPercentage = Math.round(dangerScore * 0.7);
+                    warningPercentage = Math.round(dangerScore * 0.8);
+                    safePercentage = 100 - dangerPercentage - warningPercentage;
+                } else if (dangerScore >= 20) {
+                    // Ligeramente peligroso
+                    dangerPercentage = Math.round(dangerScore * 0.5);
+                    warningPercentage = Math.round(dangerScore * 1.2);
+                    safePercentage = 100 - dangerPercentage - warningPercentage;
+                } else {
+                    // Baja peligrosidad
+                    dangerPercentage = Math.round(dangerScore * 0.3);
+                    warningPercentage = Math.round(dangerScore);
+                    safePercentage = 100 - dangerPercentage - warningPercentage;
+                }
+                
+                // Asegurar que los porcentajes no sean negativos
+                safePercentage = Math.max(safePercentage, 0);
+                warningPercentage = Math.max(warningPercentage, 0);
+                dangerPercentage = Math.max(dangerPercentage, 0);
+                
+                // Ajustar para que sumen 100%
+                const total = safePercentage + warningPercentage + dangerPercentage;
+                if (total !== 100) {
+                    const factor = 100 / total;
+                    safePercentage = Math.round(safePercentage * factor);
+                    warningPercentage = Math.round(warningPercentage * factor);
+                    dangerPercentage = 100 - safePercentage - warningPercentage;
                 }
             }
             
@@ -988,7 +1075,11 @@
             document.getElementById('danger-percentage').textContent = dangerPercentage + '%';
             
             // Actualizar descripciones
-            updateRiskDescriptions(result);
+            updateRiskDescriptions(result, {
+                safe: safePercentage,
+                warning: warningPercentage,
+                danger: dangerPercentage
+            });
         }
 
         // Funciones auxiliares
@@ -1013,7 +1104,7 @@
         }
 
         // Función para actualizar descripciones según el nivel de riesgo
-        function updateRiskDescriptions(result) {
+        function updateRiskDescriptions(result, percentages) {
             const safeCard = document.querySelector('.summary-card.safe .description');
             const warningCard = document.querySelector('.summary-card.warning .description');
             const dangerCard = document.querySelector('.summary-card.danger .description');
@@ -1025,32 +1116,29 @@
             } else {
                 const patternsCount = result.total_patterns_found;
                 const matchesCount = result.total_matches;
+                const textLength = (localStorage.getItem('analyzedText') || '').trim();
+                const wordCount = textLength.split(/\s+/).filter(word => word.length > 0).length;
                 
-                switch (result.risk_level) {
-                    case 'Low':
-                        safeCard.textContent = 'Mayormente seguro con observaciones menores';
-                        warningCard.textContent = `${patternsCount} patrón(es) de riesgo bajo detectado(s)`;
-                        dangerCard.textContent = 'Sin contenido altamente peligroso';
-                        break;
-                    case 'Medium':
-                        safeCard.textContent = 'Contenido con riesgos moderados';
-                        warningCard.textContent = `${patternsCount} patrón(es) requieren atención`;
-                        dangerCard.textContent = 'Algunos patrones de riesgo medio detectados';
-                        break;
-                    case 'High':
-                        safeCard.textContent = 'Contenido con alto riesgo de ciberacoso';
-                        warningCard.textContent = `${patternsCount} patrones problemáticos detectados`;
-                        dangerCard.textContent = `${matchesCount} coincidencias de alto riesgo`;
-                        break;
-                    case 'Critical':
-                        safeCard.textContent = 'Contenido extremadamente peligroso';
-                        warningCard.textContent = 'Múltiples patrones críticos detectados';
-                        dangerCard.textContent = `${matchesCount} patrones de ciberacoso confirmados`;
-                        break;
-                    default:
-                        safeCard.textContent = 'Contenido analizado sin clasificación';
-                        warningCard.textContent = `${patternsCount} patrón(es) detectado(s)`;
-                        dangerCard.textContent = 'Revisar manualmente';
+                // Calcular densidad para descripciones más precisas
+                const patternDensity = wordCount > 0 ? ((patternsCount / wordCount) * 100).toFixed(1) : 0;
+                
+                // Descripciones inteligentes basadas en los porcentajes calculados
+                if (percentages.danger >= 50) {
+                    safeCard.textContent = 'Contenido con alto riesgo de ciberacoso detectado';
+                    warningCard.textContent = `${patternsCount} patrones en ${wordCount} palabras (densidad: ${patternDensity}%)`;
+                    dangerCard.textContent = `${matchesCount} coincidencias críticas detectadas`;
+                } else if (percentages.danger >= 25) {
+                    safeCard.textContent = 'Contenido con riesgo moderado de ciberacoso';
+                    warningCard.textContent = `${patternsCount} patrones requieren atención`;
+                    dangerCard.textContent = `${matchesCount} coincidencias de riesgo medio-alto`;
+                } else if (percentages.warning >= 30) {
+                    safeCard.textContent = 'Contenido mayormente seguro con observaciones';
+                    warningCard.textContent = `${patternsCount} patrón(es) de baja intensidad`;
+                    dangerCard.textContent = 'Riesgo bajo pero requiere monitoreo';
+                } else {
+                    safeCard.textContent = 'Contenido con patrones menores detectados';
+                    warningCard.textContent = `${patternsCount} patrón(es) de impacto mínimo`;
+                    dangerCard.textContent = 'Sin riesgo significativo identificado';
                 }
             }
         }
