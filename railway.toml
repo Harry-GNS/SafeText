@@ -1,5 +1,6 @@
 # Configuración para Railway
 # Esta configuración hace que tu app sea eficiente con los créditos
+# Updated for deployment with enhanced functionality
 
 [build]
 # Usar Python 3.11
