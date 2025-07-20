@@ -13,6 +13,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from algorithms.analyzer import CyberbullyingAnalyzer
 from algorithms.selector import AlgorithmSelector
+from recommendations_engine import get_recommendations_for_analysis
 ##Comentario Harry
 
 app = Flask(__name__)
@@ -259,6 +260,51 @@ def test_api():
         'algorithms': ['KMP', 'Boyer-Moore'],
         'total_patterns': len(analyzer.patterns)
     })
+
+@app.route('/api/recommendations', methods=['POST'])
+def get_recommendations():
+    """
+    Endpoint para obtener recomendaciones personalizadas basadas en el análisis
+    """
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'No se proporcionaron datos de análisis'
+            }), 400
+        
+        # Validar que tenga la estructura básica del análisis
+        if 'is_cyberbullying' not in data:
+            return jsonify({
+                'success': False,
+                'error': 'Datos de análisis incompletos'
+            }), 400
+        
+        # Generar recomendaciones usando el motor de recomendaciones
+        recommendations_result = get_recommendations_for_analysis(data)
+        
+        if recommendations_result['success']:
+            return jsonify({
+                'success': True,
+                'recommendations': recommendations_result['recommendations'],
+                'total_recommendations': recommendations_result['total_recommendations'],
+                'generated_at': analyzer._get_timestamp()
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': recommendations_result.get('error', 'Error generando recomendaciones'),
+                'fallback_recommendations': recommendations_result.get('recommendations', [])
+            }), 500
+            
+    except Exception as e:
+        print(f"Error en /api/recommendations: {e}")
+        return jsonify({
+            'success': False,
+            'error': f'Error del servidor: {str(e)}'
+        }), 500
 
 @app.errorhandler(404)
 def not_found(error):

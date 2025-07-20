@@ -5,6 +5,234 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeText - Resultados del Análisis</title>
     <link rel="stylesheet" href="../static/styles.css">
+    <style>
+        /* Estilos para la sección de recomendaciones */
+        .recommendations-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dee2e6;
+        }
+
+        .recommendations-section h3 {
+            color: #495057;
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #6c757d;
+            padding-bottom: 0.5rem;
+        }
+
+        .loading-recommendations {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading-recommendations .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #6c757d;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .recommendation-card {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            border-color: #adb5bd;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .recommendation-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            gap: 0.75rem;
+        }
+
+        .recommendation-icon {
+            font-size: 1.5rem;
+            min-width: 2rem;
+            color: #6c757d;
+        }
+
+        .recommendation-title {
+            flex: 1;
+            font-size: 1.1rem;
+            color: #343a40;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .priority-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .priority-1 {
+            background-color: #495057;
+            color: white;
+        }
+
+        .priority-2 {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .priority-3 {
+            background-color: #adb5bd;
+            color: #495057;
+        }
+
+        .recommendation-content {
+            line-height: 1.6;
+        }
+
+        .recommendation-description {
+            color: #6c757d;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .recommendation-action {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid #6c757d;
+            border: 1px solid #e9ecef;
+        }
+
+        .recommendation-action strong {
+            color: #495057;
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .recommendation-action p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .recommendations-footer {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .recommendation-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid #adb5bd;
+            border: 1px solid #e9ecef;
+        }
+
+        .note-icon {
+            font-size: 1.2rem;
+            margin-top: 0.1rem;
+            color: #6c757d;
+        }
+
+        .recommendation-note p {
+            margin: 0;
+            color: #495057;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Estilos para loading de recomendaciones */
+        .loading-recommendations {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+            color: #6c757d;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e9ecef;
+            border-top: 3px solid #495057;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-recommendations p {
+            margin: 0;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .recommendations-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .recommendation-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .priority-badge {
+                align-self: flex-start;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -104,9 +332,18 @@
                     </div>
                 </div>
 
-            </div>
+                <!-- Recomendaciones Inteligentes -->
+                <div class="recommendations-section">
+                    <h3>💡 Recomendaciones Personalizadas</h3>
+                    <div class="recommendations-container" id="recommendations-container">
+                        <!-- Las recomendaciones se cargarán dinámicamente aquí -->
+                        <div class="loading-recommendations">
+                            <div class="spinner"></div>
+                            <p>Generando recomendaciones basadas en el análisis...</p>
+                        </div>
+                    </div>
+                </div>
 
-            <!-- Acciones -->
             </div>
 
             <!-- Acciones -->
@@ -189,6 +426,25 @@
             }
             
             reportContent += `RESUMEN: ${data.analysis_summary}\n\n`;
+            
+            // Agregar recomendaciones al reporte
+            const recommendationsCards = document.querySelectorAll('.recommendation-card');
+            if (recommendationsCards.length > 0) {
+                reportContent += `RECOMENDACIONES PERSONALIZADAS:\n`;
+                reportContent += `-------------------------------\n`;
+                recommendationsCards.forEach((card, index) => {
+                    const title = card.querySelector('.recommendation-title')?.textContent || 'Recomendación';
+                    const description = card.querySelector('.recommendation-description')?.textContent || '';
+                    const action = card.querySelector('.recommendation-action p')?.textContent || '';
+                    const priority = card.querySelector('.priority-badge')?.textContent || 'Media';
+                    
+                    reportContent += `${index + 1}. ${title}\n`;
+                    reportContent += `   Prioridad: ${priority}\n`;
+                    reportContent += `   Descripción: ${description}\n`;
+                    reportContent += `   Acción: ${action}\n\n`;
+                });
+            }
+            
             reportContent += `---\n`;
             reportContent += `Reporte generado por SafeText - Sistema de Detección de Ciberacoso\n`;
             reportContent += `Desarrollado por Harry Guajan y Joel Tinitana - EPN 2025`;
@@ -223,7 +479,7 @@
             loadAnalyzedText();
             
             // Animaciones
-            const cards = document.querySelectorAll('.summary-card, .pattern-item, .recommendation-item');
+            const cards = document.querySelectorAll('.summary-card, .pattern-item, .recommendation-card');
             cards.forEach((card, index) => {
                 setTimeout(() => {
                     card.style.opacity = '1';
@@ -302,8 +558,130 @@
             // Actualizar resumen de detección
             updateDetectionSummary(result);
             
+            // Generar recomendaciones inteligentes
+            generateIntelligentRecommendations(result);
+            
             // Guardar resultados para exportación
             localStorage.setItem('analysisResults', JSON.stringify(result));
+        }
+
+        // Función para generar recomendaciones inteligentes desde el backend
+        async function generateIntelligentRecommendations(result) {
+            const container = document.getElementById('recommendations-container');
+            
+            try {
+                // Mostrar mensaje de carga
+                container.innerHTML = `
+                    <div class="loading-recommendations">
+                        <div class="loading-spinner"></div>
+                        <p>Generando recomendaciones personalizadas...</p>
+                    </div>
+                `;
+                
+                // Llamar al backend para obtener recomendaciones
+                const response = await fetch('/api/recommendations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(result)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Mostrar recomendaciones del backend
+                    displayRecommendations(data.recommendations, container);
+                } else {
+                    console.error('Error del servidor:', data.error);
+                    displayFallbackRecommendations(container);
+                }
+                
+            } catch (error) {
+                console.error('Error llamando al backend:', error);
+                displayFallbackRecommendations(container);
+            }
+        }
+
+        // Función para seleccionar recomendaciones por tipo
+        function selectRecommendationsByType(type, count) {
+            const recommendations = RECOMMENDATIONS_BANK[type] || [];
+            return recommendations.slice(0, count);
+        }
+
+        // Función para seleccionar recomendaciones por severidad
+        function selectRecommendationsBySeverity(severity, count) {
+            const recommendations = RECOMMENDATIONS_BANK.severity[severity] || RECOMMENDATIONS_BANK.severity['Low'];
+            return recommendations.slice(0, count);
+        }
+
+        // Función para seleccionar recomendaciones por categoría
+        function selectRecommendationsByCategory(category, count) {
+            const recommendations = RECOMMENDATIONS_BANK.categories[category] || [];
+            return recommendations.slice(0, count);
+        }
+
+        // Función para mostrar las recomendaciones
+        function displayRecommendations(recommendations, container) {
+            let html = '<div class="recommendations-grid">';
+            
+            recommendations.forEach((rec, index) => {
+                html += `
+                    <div class="recommendation-card" style="animation-delay: ${index * 0.1}s">
+                        <div class="recommendation-header">
+                            <span class="recommendation-icon">${rec.icon}</span>
+                            <h4 class="recommendation-title">${rec.title}</h4>
+                            <span class="priority-badge priority-${rec.priority}">
+                                Prioridad ${rec.priority === 1 ? 'Alta' : rec.priority === 2 ? 'Media' : 'Baja'}
+                            </span>
+                        </div>
+                        <div class="recommendation-content">
+                            <p class="recommendation-description">${rec.description}</p>
+                            <div class="recommendation-action">
+                                <strong>Acción recomendada:</strong>
+                                <p>${rec.action}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            // Agregar información adicional
+            html += `
+                <div class="recommendations-footer">
+                    <div class="recommendation-note">
+                        <span class="note-icon">💡</span>
+                        <p>Estas recomendaciones han sido generadas automáticamente basándose en los patrones detectados en el análisis. 
+                        Se recomienda adaptar estas sugerencias al contexto específico de cada situación.</p>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // Función de respaldo para mostrar recomendaciones básicas
+        function displayFallbackRecommendations(container) {
+            const fallbackRecs = [
+                {
+                    icon: '👀',
+                    title: 'Revisión Manual Recomendada',
+                    description: 'Se sugiere una revisión manual del contenido.',
+                    action: 'Evalúe el contexto completo de la comunicación y tome medidas apropiadas.',
+                    priority: 1
+                },
+                {
+                    icon: '📚',
+                    title: 'Educación Preventiva',
+                    description: 'La educación es fundamental para prevenir el ciberacoso.',
+                    action: 'Implemente programas de concientización sobre comunicación digital responsable.',
+                    priority: 2
+                }
+            ];
+            
+            displayRecommendations(fallbackRecs, container);
         }
 
         // Función para crear texto con patrones resaltados
