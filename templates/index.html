@@ -57,7 +57,10 @@
                 <p>Este proyecto ha sido desarrollado sin fines de lucro, con el propósito de poner a prueba algoritmos de búsqueda de patrones aplicados a la detección de mensajes de odio. Para utilizarlo, simplemente copia tu texto o sube un archivo con los mensajes. Además, tienes la opción de agregar tus propios patrones personalizados para ampliar la detección.</p>
             </div>
             
-         
+            <div class="about-link">
+                <a href="#" id="about-us">About us</a>
+            </div>
+        </div>
     </main>
 
     <!-- Pie de página -->
@@ -98,6 +101,115 @@
         textInput.addEventListener('input', updateCharCount);
         textInput.addEventListener('paste', function() {
             setTimeout(updateCharCount, 10);
+        });
+
+        // Funcionalidad de los botones
+        
+        // Botón Analizar - lleva a resultados
+        document.getElementById('analyze-btn').addEventListener('click', function() {
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                alert('Por favor, ingrese algún texto para analizar');
+                return;
+            }
+            
+            // Guardar el texto en localStorage para usarlo en la página de resultados
+            localStorage.setItem('analyzedText', text);
+            
+            // Redirigir a la página de resultados
+            window.location.href = 'resultados.html';
+        });
+
+        // Botón Opciones - lleva a configuración
+        document.getElementById('options-btn').addEventListener('click', function() {
+            window.location.href = 'config.html';
+        });
+
+        // Botón Cargar Archivos
+        document.getElementById('upload-btn').addEventListener('click', function() {
+            document.getElementById('file-input').click();
+        });
+
+        // Manejar selección de archivos
+        document.getElementById('file-input').addEventListener('change', function(event) {
+            const files = event.target.files;
+            
+            if (files.length > 0) {
+                const file = files[0];
+                
+                // Verificar si es un archivo de texto
+                if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const content = e.target.result;
+                        
+                        // Verificar límite de caracteres
+                        if (content.length > 5000) {
+                            alert('El archivo es demasiado grande. El límite es de 5,000 caracteres.');
+                            return;
+                        }
+                        
+                        textInput.value = content;
+                        updateCharCount();
+                    };
+                    
+                    reader.readAsText(file);
+                } else {
+                    alert('Por favor, seleccione un archivo de texto (.txt)');
+                }
+            }
+        });
+
+        // Funcionalidad drag and drop
+        const fileDropArea = document.getElementById('file-drop-area');
+
+        fileDropArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            fileDropArea.classList.add('dragover');
+        });
+
+        fileDropArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            fileDropArea.classList.remove('dragover');
+        });
+
+        fileDropArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            fileDropArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            
+            if (files.length > 0) {
+                const file = files[0];
+                
+                if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const content = e.target.result;
+                        
+                        if (content.length > 5000) {
+                            alert('El archivo es demasiado grande. El límite es de 5,000 caracteres.');
+                            return;
+                        }
+                        
+                        textInput.value = content;
+                        updateCharCount();
+                    };
+                    
+                    reader.readAsText(file);
+                } else {
+                    alert('Por favor, arrastre un archivo de texto (.txt)');
+                }
+            }
+        });
+
+        // About us
+        document.getElementById('about-us').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('SafeText - Sistema de Detección de Ciberacoso Escolar\n\nDesarrollado por Harry Guajan y Joel Tinitana\nEscuela Politécnica Nacional (EPN)\nEstructura de Datos y Algoritmos II\n\nEste sistema utiliza algoritmos avanzados de búsqueda de patrones para detectar y prevenir situaciones de ciberacoso en entornos educativos.');
         });
     </script>
 </body>

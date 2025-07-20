@@ -185,6 +185,10 @@
         
         // Animación de entrada para las tarjetas
         document.addEventListener('DOMContentLoaded', function() {
+            // Cargar texto analizado desde localStorage
+            loadAnalyzedText();
+            
+            // Animaciones
             const cards = document.querySelectorAll('.summary-card, .pattern-item, .recommendation-item');
             cards.forEach((card, index) => {
                 setTimeout(() => {
@@ -193,6 +197,99 @@
                 }, index * 100);
             });
         });
+
+        // Función para cargar el texto analizado
+        function loadAnalyzedText() {
+            const analyzedText = localStorage.getItem('analyzedText');
+            
+            if (analyzedText) {
+                // Mostrar el texto analizado
+                document.getElementById('analyzed-text').textContent = analyzedText;
+                
+                // Calcular estadísticas
+                const charCount = analyzedText.length;
+                const wordCount = analyzedText.trim().split(/\s+/).filter(word => word.length > 0).length;
+                const lineCount = analyzedText.split('\n').length;
+                
+                // Actualizar estadísticas
+                document.getElementById('char-count').textContent = charCount;
+                document.getElementById('word-count').textContent = wordCount;
+                document.getElementById('line-count').textContent = lineCount;
+                
+                // Simular análisis básico
+                performBasicAnalysis(analyzedText);
+            } else {
+                // Si no hay texto, mostrar mensaje y redirigir
+                alert('No hay texto para analizar. Será redirigido al inicio.');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Función para realizar análisis básico del texto
+        function performBasicAnalysis(text) {
+            // Palabras potencialmente problemáticas (básico)
+            const problematicWords = [
+                'idiota', 'estúpido', 'tonto', 'feo', 'gordo', 'perdedor', 'fracasado', 
+                'inútil', 'nadie te quiere', 'vete a morir', 'te voy a pegar', 'cállate',
+                'eres un', 'no sirves', 'me da asco', 'patético', 'monstruo'
+            ];
+            
+            const textLower = text.toLowerCase();
+            let foundPatterns = [];
+            let riskLevel = 0;
+            
+            // Buscar patrones
+            problematicWords.forEach(word => {
+                if (textLower.includes(word.toLowerCase())) {
+                    foundPatterns.push(word);
+                    // Asignar puntos de riesgo según la gravedad
+                    if (['vete a morir', 'te voy a pegar'].includes(word)) {
+                        riskLevel += 30;
+                    } else if (['idiota', 'estúpido', 'inútil', 'nadie te quiere'].includes(word)) {
+                        riskLevel += 20;
+                    } else {
+                        riskLevel += 10;
+                    }
+                }
+            });
+            
+            // Actualizar porcentajes basados en el análisis
+            const safePercentage = Math.max(0, 100 - riskLevel);
+            const warningPercentage = Math.min(riskLevel, 50);
+            const dangerPercentage = Math.max(0, riskLevel - 50);
+            
+            document.getElementById('safe-percentage').textContent = safePercentage + '%';
+            document.getElementById('warning-percentage').textContent = warningPercentage + '%';
+            document.getElementById('danger-percentage').textContent = dangerPercentage + '%';
+            
+            // Actualizar descripciones según el riesgo
+            updateRiskDescriptions(riskLevel, foundPatterns.length);
+        }
+
+        // Función para actualizar descripciones según el nivel de riesgo
+        function updateRiskDescriptions(riskLevel, patternsFound) {
+            const safeCard = document.querySelector('.summary-card.safe .description');
+            const warningCard = document.querySelector('.summary-card.warning .description');
+            const dangerCard = document.querySelector('.summary-card.danger .description');
+            
+            if (riskLevel === 0) {
+                safeCard.textContent = 'No se detectaron patrones de ciberacoso';
+                warningCard.textContent = 'Sin contenido sospechoso';
+                dangerCard.textContent = 'Sin contenido peligroso';
+            } else if (riskLevel <= 30) {
+                safeCard.textContent = 'Mayormente seguro con observaciones menores';
+                warningCard.textContent = `${patternsFound} patrón(es) de riesgo bajo detectado(s)`;
+                dangerCard.textContent = 'Sin contenido altamente peligroso';
+            } else if (riskLevel <= 60) {
+                safeCard.textContent = 'Contenido con riesgos moderados';
+                warningCard.textContent = `${patternsFound} patrón(es) requieren atención`;
+                dangerCard.textContent = 'Algunos patrones de alto riesgo detectados';
+            } else {
+                safeCard.textContent = 'Contenido con alto riesgo de ciberacoso';
+                warningCard.textContent = 'Múltiples patrones problemáticos';
+                dangerCard.textContent = `${patternsFound} patrones de ciberacoso confirmados`;
+            }
+        }
     </script>
 </body>
 </html>
