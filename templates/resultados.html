@@ -74,39 +74,46 @@
                     </div>
                 </div>
 
-                <!-- Detalles de detección -->
+                <!-- Patrones Detectados (movido aquí después del resumen) -->
                 <div class="detection-details">
-                    <h3>Patrones Detectados</h3>
-                    <div class="patterns-list" id="patterns-list">
-                        <!-- Los patrones detectados se mostrarán aquí dinámicamente -->
-                        <div class="pattern-item low-risk">
-                            <div class="pattern-header">
-                                <span class="pattern-type">Lenguaje Informal</span>
-                                <span class="risk-level">Riesgo Bajo</span>
-                            </div>
-                            <div class="pattern-description">
-                                <p>Se detectó uso de lenguaje coloquial que podría interpretarse como agresivo en contexto formal.</p>
-                                <div class="pattern-matches">
-                                    <strong>Coincidencias encontradas:</strong>
-                                    <span class="match-highlight">"ese tipo"</span>, 
-                                    <span class="match-highlight">"no me molestes"</span>
-                                </div>
-                            </div>
+                    <h3>📊 Patrones Detectados</h3>
+                    
+                    <!-- Texto con patrones resaltados -->
+                    <div class="highlighted-text-container">
+                        <h4>Texto Analizado con Patrones Detectados</h4>
+                        <div class="highlighted-text" id="highlighted-text">
+                            <!-- El texto con patrones resaltados se mostrará aquí -->
+                            <p>Cargando análisis...</p>
                         </div>
-                        
-                        <div class="pattern-item medium-risk">
-                            <div class="pattern-header">
-                                <span class="pattern-type">Tono Agresivo</span>
-                                <span class="risk-level">Riesgo Medio</span>
-                            </div>
-                            <div class="pattern-description">
-                                <p>Identificadas expresiones con tono confrontativo que podrían escalar a situaciones de acoso.</p>
-                                <div class="pattern-matches">
-                                    <strong>Coincidencias encontradas:</strong>
-                                    <span class="match-highlight">"cállate"</span>, 
-                                    <span class="match-highlight">"eres un idiota"</span>
-                                </div>
-                            </div>
+                    </div>
+                    
+                    <!-- Resumen compacto -->
+                    <div class="detection-summary" id="detection-summary">
+                        <div class="summary-item">
+                            <span class="summary-label">Patrones encontrados:</span>
+                            <span class="summary-value" id="patterns-count">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Total coincidencias:</span>
+                            <span class="summary-value" id="matches-count">0</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Algoritmos usados:</span>
+                            <span class="summary-value" id="algorithms-list">N/A</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista detallada de patrones (colapsable) -->
+                    <div class="patterns-details-toggle">
+                        <button class="toggle-btn" id="toggle-patterns-details">
+                            Ver detalles de patrones ▼
+                        </button>
+                    </div>
+                    <div class="patterns-list" id="patterns-list" style="display: none;">
+                        <!-- Los patrones detectados se mostrarán aquí dinámicamente -->
+                        <div class="loading-patterns">
+                            <div class="spinner"></div>
+                            <p>Analizando patrones...</p>
                         </div>
                     </div>
                 </div>
@@ -343,14 +350,104 @@
             // Actualizar porcentajes
             updatePercentages(result);
             
-            // Mostrar patrones detectados
+            // Crear texto resaltado
+            createHighlightedText(result);
+            
+            // Actualizar resumen de detección
+            updateDetectionSummary(result);
+            
+            // Mostrar patrones detectados (en lista detallada)
             displayDetectedPatterns(result);
             
             // Generar recomendaciones dinámicas
             generateDynamicRecommendations(result);
             
+            // Configurar toggle para detalles
+            setupDetailsToggle();
+            
             // Guardar resultados para exportación
             localStorage.setItem('analysisResults', JSON.stringify(result));
+        }
+
+        // Función para crear texto con patrones resaltados
+        function createHighlightedText(result) {
+            const highlightedTextElement = document.getElementById('highlighted-text');
+            const originalText = localStorage.getItem('analyzedText') || 'Texto no disponible';
+            
+            if (!result.matches || result.matches.length === 0) {
+                highlightedTextElement.innerHTML = `
+                    <p class="no-patterns-text">${originalText}</p>
+                    <div class="no-patterns-note">
+                        ✅ No se detectaron patrones de ciberacoso en este texto
+                    </div>
+                `;
+                return;
+            }
+            
+            // Crear una copia del texto para modificar
+            let highlightedText = originalText;
+            
+            // Ordenar matches por posición (de mayor a menor para no afectar índices)
+            const sortedMatches = [];
+            result.matches.forEach(match => {
+                match.positions.forEach(pos => {
+                    sortedMatches.push({
+                        position: pos,
+                        pattern: match.pattern_info.pattern,
+                        severity: match.pattern_info.severity,
+                        category: match.pattern_info.category
+                    });
+                });
+            });
+            
+            // Ordenar por posición descendente
+            sortedMatches.sort((a, b) => b.position - a.position);
+            
+            // Aplicar resaltado
+            sortedMatches.forEach(match => {
+                const start = match.position;
+                const end = start + match.pattern.length;
+                const severityClass = getSeverityClass(match.severity);
+                
+                const before = highlightedText.substring(0, start);
+                const highlighted = highlightedText.substring(start, end);
+                const after = highlightedText.substring(end);
+                
+                highlightedText = before + 
+                    `<span class="highlighted-pattern ${severityClass}" title="${match.category}: ${match.pattern}">${highlighted}</span>` + 
+                    after;
+            });
+            
+            highlightedTextElement.innerHTML = `<p>${highlightedText}</p>`;
+        }
+
+        // Función para actualizar el resumen de detección
+        function updateDetectionSummary(result) {
+            document.getElementById('patterns-count').textContent = result.total_patterns_found || 0;
+            document.getElementById('matches-count').textContent = result.total_matches || 0;
+            
+            // Mostrar algoritmos usados
+            const algorithmsUsed = result.algorithms_used || {};
+            const algorithmsList = Object.keys(algorithmsUsed);
+            const algorithmsText = algorithmsList.length > 0 ? 
+                algorithmsList.map(algo => `${algo} (${algorithmsUsed[algo]})`).join(', ') : 'N/A';
+            document.getElementById('algorithms-list').textContent = algorithmsText;
+        }
+
+        // Función para configurar el toggle de detalles
+        function setupDetailsToggle() {
+            const toggleBtn = document.getElementById('toggle-patterns-details');
+            const patternsList = document.getElementById('patterns-list');
+            
+            toggleBtn.addEventListener('click', function() {
+                if (patternsList.style.display === 'none') {
+                    patternsList.style.display = 'block';
+                    toggleBtn.textContent = 'Ocultar detalles de patrones ▲';
+                } else {
+                    patternsList.style.display = 'none';
+                    toggleBtn.textContent = 'Ver detalles de patrones ▼';
+                }
+            });
         }
 
         // Función para actualizar porcentajes basados en el análisis real
@@ -429,14 +526,22 @@
                             <span class="algorithm-used">Algoritmo: ${algorithmUsed}</span>
                         </div>
                         <div class="pattern-description">
-                            <p>${patternInfo.description}</p>
+                            <p><strong>Descripción:</strong> ${patternInfo.description}</p>
                             <div class="pattern-matches">
                                 <strong>Patrón detectado:</strong>
                                 <span class="match-highlight">"${patternInfo.pattern}"</span>
                                 <span class="match-count">(${match.total_matches} coincidencia(s))</span>
                             </div>
-                            <div class="match-positions">
-                                <strong>Posiciones:</strong> ${match.positions.join(', ')}
+                            <div class="pattern-details">
+                                <div class="detail-item">
+                                    <strong>Posiciones en el texto:</strong> ${match.positions.join(', ')}
+                                </div>
+                                <div class="detail-item">
+                                    <strong>ID del patrón:</strong> ${patternInfo.id || 'N/A'}
+                                </div>
+                                <div class="detail-item">
+                                    <strong>Severidad:</strong> ${patternInfo.severity}
+                                </div>
                             </div>
                         </div>
                     </div>
