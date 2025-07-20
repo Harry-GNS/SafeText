@@ -38,7 +38,7 @@ def index_page():
 def config_page():
     """Sirve la página de configuración."""
     return send_from_directory('templates', 'config.html')
-
+#Comentario XD
 @app.route('/resultados.html')
 def results_page():
     """Sirve la página de resultados."""
