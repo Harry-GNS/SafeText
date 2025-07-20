@@ -5,418 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeText - Resultados del Análisis</title>
     <link rel="stylesheet" href="../static/styles.css">
-    <style>
-        /* Estilos para la sección de recomendaciones */
-        .recommendations-section {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            border: 1px solid #dee2e6;
-        }
-
-        .recommendations-section h3 {
-            color: #495057;
-            margin-bottom: 1.5rem;
-            font-size: 1.4rem;
-            border-bottom: 2px solid #6c757d;
-            padding-bottom: 0.5rem;
-        }
-
-        .loading-recommendations {
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .loading-recommendations .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #6c757d;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .recommendations-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .recommendation-card {
-            background: #ffffff;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e9ecef;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            animation: slideInUp 0.6s ease forwards;
-            opacity: 0;
-        }
-
-        .recommendation-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-            border-color: #adb5bd;
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .recommendation-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-            gap: 0.75rem;
-        }
-
-        .recommendation-icon {
-            font-size: 1.5rem;
-            min-width: 2rem;
-            color: #6c757d;
-        }
-
-        .recommendation-title {
-            flex: 1;
-            font-size: 1.1rem;
-            color: #343a40;
-            margin: 0;
-            font-weight: 600;
-        }
-
-        .priority-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 16px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .priority-1 {
-            background-color: #495057;
-            color: white;
-        }
-
-        .priority-2 {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .priority-3 {
-            background-color: #adb5bd;
-            color: #495057;
-        }
-
-        .recommendation-content {
-            line-height: 1.6;
-        }
-
-        .recommendation-description {
-            color: #6c757d;
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-        }
-
-        .recommendation-action {
-            background-color: #f8f9fa;
-            padding: 1rem;
-            border-radius: 6px;
-            border-left: 4px solid #6c757d;
-            border: 1px solid #e9ecef;
-        }
-
-        .recommendation-action strong {
-            color: #495057;
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
-        .recommendation-action p {
-            margin: 0;
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-
-        .recommendations-footer {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #dee2e6;
-        }
-
-        .recommendation-note {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-            background-color: #f8f9fa;
-            padding: 1rem;
-            border-radius: 6px;
-            border-left: 4px solid #adb5bd;
-            border: 1px solid #e9ecef;
-        }
-
-        .note-icon {
-            font-size: 1.2rem;
-            margin-top: 0.1rem;
-            color: #6c757d;
-        }
-
-        .recommendation-note p {
-            margin: 0;
-            color: #495057;
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        /* Estilos para loading de recomendaciones */
-        .loading-recommendations {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 3rem 1rem;
-            color: #6c757d;
-        }
-
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #e9ecef;
-            border-top: 3px solid #495057;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-recommendations p {
-            margin: 0;
-            font-size: 0.95rem;
-            text-align: center;
-        }
-
-        /* Estilos para la recomendación única y resumen */
-        .single-recommendation {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .main-recommendation {
-            border-left: 4px solid #495057;
-        }
-
-        .analysis-summary-box {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .summary-title {
-            color: #495057;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 0.5rem;
-        }
-
-        .summary-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            padding: 0.75rem;
-            border-radius: 6px;
-            font-weight: 600;
-        }
-
-        .summary-status.bajo,
-        .summary-status.none {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .summary-status.low {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        .summary-status.medium {
-            background-color: #ffeaa7;
-            color: #6c5ce7;
-        }
-
-        .summary-status.high {
-            background-color: #fdcb6e;
-            color: #e17055;
-        }
-
-        .summary-status.critical {
-            background-color: #fab1a0;
-            color: #d63031;
-        }
-
-        .summary-status.desconocido {
-            background-color: #e9ecef;
-            color: #6c757d;
-        }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: currentColor;
-        }
-
-        .summary-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem;
-            background: white;
-            border-radius: 4px;
-            border: 1px solid #e9ecef;
-        }
-
-        .detail-label {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-
-        .detail-value {
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .summary-description {
-            margin-bottom: 1rem;
-        }
-
-        .summary-description p {
-            color: #6c757d;
-            margin: 0;
-            line-height: 1.5;
-        }
-
-        .next-steps {
-            background: white;
-            padding: 1rem;
-            border-radius: 6px;
-            border-left: 4px solid #6c757d;
-            border: 1px solid #e9ecef;
-        }
-
-        .next-steps strong {
-            color: #495057;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        .next-steps p {
-            margin: 0;
-            color: #6c757d;
-            font-size: 0.95rem;
-        }
-
-        /* Estilos para el tip de revisión manual */
-        .manual-review-tip {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1rem;
-            border-left: 4px solid #6c757d;
-        }
-
-        .tip-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .tip-icon {
-            font-size: 1.2rem;
-            color: #6c757d;
-        }
-
-        .tip-header h5 {
-            margin: 0;
-            color: #495057;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .manual-review-tip p {
-            margin: 0;
-            color: #6c757d;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            font-style: italic;
-        }
-
-        /* Estilos para las categorías en el resumen */
-        #categories-list {
-            font-weight: 600;
-            color: #495057;
-        }
-
-        /* Mejorar tooltips de patrones resaltados */
-        .highlighted-pattern {
-            cursor: help;
-            position: relative;
-        }
-
-        .highlighted-pattern:hover {
-            opacity: 0.8;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .recommendations-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .recommendation-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-            
-            .priority-badge {
-                align-self: flex-start;
-            }
-        }
-    </style>
 </head>
 <body>
     <header>
@@ -510,28 +98,55 @@
                             <span class="summary-value" id="matches-count">0</span>
                         </div>
                         <div class="summary-item">
-                            <span class="summary-label">Categorías detectadas:</span>
-                            <span class="summary-value" id="categories-list">N/A</span>
-                        </div>
-                        <div class="summary-item">
                             <span class="summary-label">Algoritmos usados:</span>
                             <span class="summary-value" id="algorithms-list">N/A</span>
                         </div>
                     </div>
-                </div>
-
-                <!-- Recomendaciones Inteligentes -->
-                <div class="recommendations-section">
-                    <h3>💡 Recomendaciones Personalizadas</h3>
-                    <div class="recommendations-container" id="recommendations-container">
-                        <!-- Las recomendaciones se cargarán dinámicamente aquí -->
-                        <div class="loading-recommendations">
+                    
+                    <!-- Lista detallada de patrones (colapsable) -->
+                    <div class="patterns-details-toggle">
+                        <button class="toggle-btn" id="toggle-patterns-details">
+                            Ver detalles de patrones ▼
+                        </button>
+                    </div>
+                    <div class="patterns-list" id="patterns-list" style="display: none;">
+                        <!-- Los patrones detectados se mostrarán aquí dinámicamente -->
+                        <div class="loading-patterns">
                             <div class="spinner"></div>
-                            <p>Generando recomendaciones basadas en el análisis...</p>
+                            <p>Analizando patrones...</p>
                         </div>
                     </div>
                 </div>
 
+                <!-- Recomendaciones -->
+                <div class="recommendations">
+                    <h3>Recomendaciones</h3>
+                    <div class="recommendation-list">
+                        <div class="recommendation-item">
+                            <div class="rec-icon">💡</div>
+                            <div class="rec-content">
+                                <h4>Supervisión Recomendada</h4>
+                                <p>Se sugiere revisar manualmente el contenido identificado para determinar el contexto y la intención real del mensaje.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="recommendation-item">
+                            <div class="rec-icon">📚</div>
+                            <div class="rec-content">
+                                <h4>Educación Preventiva</h4>
+                                <p>Implementar programas de concientización sobre comunicación digital responsable y respeto en línea.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="recommendation-item">
+                            <div class="rec-icon">🔄</div>
+                            <div class="rec-content">
+                                <h4>Monitoreo Continuo</h4>
+                                <p>Establecer un sistema de seguimiento para evaluar la evolución del comportamiento comunicativo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Acciones -->
@@ -597,14 +212,7 @@
             reportContent += `¿Es ciberacoso?: ${data.is_cyberbullying ? 'SÍ' : 'NO'}\n`;
             reportContent += `Nivel de riesgo: ${data.risk_level}\n`;
             reportContent += `Patrones detectados: ${data.total_patterns_found}\n`;
-            reportContent += `Total de coincidencias: ${data.total_matches}\n`;
-            
-            // Agregar categorías detectadas al reporte
-            if (data.matches && data.matches.length > 0) {
-                const categoriesFound = [...new Set(data.matches.map(match => match.pattern_info.category))];
-                reportContent += `Categorías detectadas: ${categoriesFound.join(', ')}\n`;
-            }
-            reportContent += `\n`;
+            reportContent += `Total de coincidencias: ${data.total_matches}\n\n`;
             
             if (data.matches && data.matches.length > 0) {
                 reportContent += `PATRONES DETECTADOS:\n`;
@@ -621,33 +229,6 @@
             }
             
             reportContent += `RESUMEN: ${data.analysis_summary}\n\n`;
-            
-            // Agregar recomendación al reporte
-            const recommendationCard = document.querySelector('.recommendation-card.main-recommendation');
-            const manualTip = document.querySelector('.manual-review-tip');
-            
-            if (recommendationCard) {
-                reportContent += `RECOMENDACIÓN PERSONALIZADA:\n`;
-                reportContent += `---------------------------\n`;
-                
-                const title = recommendationCard.querySelector('.recommendation-title')?.textContent || 'Recomendación';
-                const description = recommendationCard.querySelector('.recommendation-description')?.textContent || '';
-                const action = recommendationCard.querySelector('.recommendation-action p')?.textContent || '';
-                const priority = recommendationCard.querySelector('.priority-badge')?.textContent || 'Media';
-                
-                reportContent += `Título: ${title}\n`;
-                reportContent += `Prioridad: ${priority}\n`;
-                reportContent += `Descripción: ${description}\n`;
-                reportContent += `Acción: ${action}\n\n`;
-            }
-            
-            if (manualTip) {
-                reportContent += `RECOMENDACIÓN GENERAL:\n`;
-                reportContent += `---------------------\n`;
-                const tipText = manualTip.querySelector('p')?.textContent || '';
-                reportContent += `${tipText}\n\n`;
-            }
-            
             reportContent += `---\n`;
             reportContent += `Reporte generado por SafeText - Sistema de Detección de Ciberacoso\n`;
             reportContent += `Desarrollado por Harry Guajan y Joel Tinitana - EPN 2025`;
@@ -682,7 +263,7 @@
             loadAnalyzedText();
             
             // Animaciones
-            const cards = document.querySelectorAll('.summary-card, .pattern-item, .recommendation-card');
+            const cards = document.querySelectorAll('.summary-card, .pattern-item, .recommendation-item');
             cards.forEach((card, index) => {
                 setTimeout(() => {
                     card.style.opacity = '1';
@@ -721,6 +302,9 @@
         // Función para realizar análisis real con el backend
         async function performRealAnalysis(text) {
             try {
+                // Mostrar indicador de carga
+                showLoadingState();
+                
                 // Llamar al backend para análisis
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
@@ -750,6 +334,17 @@
             }
         }
 
+        // Función para mostrar estado de carga
+        function showLoadingState() {
+            const patternsList = document.getElementById('patterns-list');
+            patternsList.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Analizando texto con algoritmos KMP y Boyer-Moore...</p>
+                </div>
+            `;
+        }
+
         // Función para mostrar los resultados del análisis real
         function displayAnalysisResults(result) {
             // Actualizar porcentajes
@@ -761,114 +356,17 @@
             // Actualizar resumen de detección
             updateDetectionSummary(result);
             
-            // Generar recomendaciones inteligentes
-            generateIntelligentRecommendations(result);
+            // Mostrar patrones detectados (en lista detallada)
+            displayDetectedPatterns(result);
+            
+            // Generar recomendaciones dinámicas
+            generateDynamicRecommendations(result);
+            
+            // Configurar toggle para detalles
+            setupDetailsToggle();
             
             // Guardar resultados para exportación
             localStorage.setItem('analysisResults', JSON.stringify(result));
-        }
-
-        // Función para generar recomendaciones inteligentes desde el backend
-        async function generateIntelligentRecommendations(result) {
-            const container = document.getElementById('recommendations-container');
-            
-            try {
-                // Mostrar mensaje de carga
-                container.innerHTML = `
-                    <div class="loading-recommendations">
-                        <div class="loading-spinner"></div>
-                        <p>Generando recomendaciones personalizadas...</p>
-                    </div>
-                `;
-                
-                // Llamar al backend para obtener recomendaciones
-                const response = await fetch('/api/recommendations', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(result)
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Mostrar solo la recomendación del backend
-                    displaySingleRecommendation(data.recommendation, container);
-                } else {
-                    console.error('Error del servidor:', data.error);
-                    displayFallbackRecommendations(container);
-                }
-                
-            } catch (error) {
-                console.error('Error llamando al backend:', error);
-                displayFallbackRecommendations(container);
-            }
-        }
-
-        // Función para seleccionar recomendaciones por tipo
-        function selectRecommendationsByType(type, count) {
-            const recommendations = RECOMMENDATIONS_BANK[type] || [];
-            return recommendations.slice(0, count);
-        }
-
-        // Función para seleccionar recomendaciones por severidad
-        function selectRecommendationsBySeverity(severity, count) {
-            const recommendations = RECOMMENDATIONS_BANK.severity[severity] || RECOMMENDATIONS_BANK.severity['Low'];
-            return recommendations.slice(0, count);
-        }
-
-        // Función para seleccionar recomendaciones por categoría
-        function selectRecommendationsByCategory(category, count) {
-            const recommendations = RECOMMENDATIONS_BANK.categories[category] || [];
-            return recommendations.slice(0, count);
-        }
-
-        // Función para mostrar una sola recomendación (sin resumen)
-        function displaySingleRecommendation(recommendation, container) {
-            let html = `
-                <div class="single-recommendation">
-                    <div class="recommendation-card main-recommendation">
-                        <div class="recommendation-header">
-                            <span class="recommendation-icon">${recommendation.icon}</span>
-                            <h4 class="recommendation-title">${recommendation.title}</h4>
-                            <span class="priority-badge priority-${recommendation.priority}">
-                                Prioridad ${recommendation.priority === 1 ? 'Alta' : recommendation.priority === 2 ? 'Media' : 'Baja'}
-                            </span>
-                        </div>
-                        <div class="recommendation-content">
-                            <p class="recommendation-description">${recommendation.description}</p>
-                            <div class="recommendation-action">
-                                <strong>Acción recomendada:</strong>
-                                <p>${recommendation.action}</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="manual-review-tip">
-                        <div class="tip-header">
-                            <span class="tip-icon">💡</span>
-                            <h5>Recomendación General</h5>
-                        </div>
-                        <p>Se sugiere una revisión manual del contenido. Evalúe el contexto completo de la comunicación y tome medidas apropiadas.</p>
-                    </div>
-                </div>
-            `;
-            
-            container.innerHTML = html;
-        }
-
-        // Función de respaldo para mostrar recomendación básica
-        function displayFallbackRecommendations(container) {
-            const fallbackRec = {
-                icon: '�',
-                title: 'Educación y Prevención',
-                description: 'La educación continua es la mejor herramienta para prevenir el ciberacoso.',
-                action: 'Implemente programas de concientización sobre comunicación digital responsable y respeto en línea.',
-                priority: 1
-            };
-            
-            displaySingleRecommendation(fallbackRec, container);
         }
 
         // Función para crear texto con patrones resaltados
@@ -916,7 +414,7 @@
                 const after = highlightedText.substring(end);
                 
                 highlightedText = before + 
-                    `<span class="highlighted-pattern ${severityClass}" title="Categoría: ${match.category} | Patrón: '${match.pattern}' | Severidad: ${match.severity}">${highlighted}</span>` + 
+                    `<span class="highlighted-pattern ${severityClass}" title="${match.category}: ${match.pattern}">${highlighted}</span>` + 
                     after;
             });
             
@@ -928,21 +426,28 @@
             document.getElementById('patterns-count').textContent = result.total_patterns_found || 0;
             document.getElementById('matches-count').textContent = result.total_matches || 0;
             
-            // Mostrar categorías detectadas
-            if (result.matches && result.matches.length > 0) {
-                const categoriesFound = [...new Set(result.matches.map(match => match.pattern_info.category))];
-                const categoriesText = categoriesFound.length > 0 ? categoriesFound.join(', ') : 'N/A';
-                document.getElementById('categories-list').textContent = categoriesText;
-            } else {
-                document.getElementById('categories-list').textContent = 'N/A';
-            }
-            
             // Mostrar algoritmos usados
             const algorithmsUsed = result.algorithms_used || {};
             const algorithmsList = Object.keys(algorithmsUsed);
             const algorithmsText = algorithmsList.length > 0 ? 
                 algorithmsList.map(algo => `${algo} (${algorithmsUsed[algo]})`).join(', ') : 'N/A';
             document.getElementById('algorithms-list').textContent = algorithmsText;
+        }
+
+        // Función para configurar el toggle de detalles
+        function setupDetailsToggle() {
+            const toggleBtn = document.getElementById('toggle-patterns-details');
+            const patternsList = document.getElementById('patterns-list');
+            
+            toggleBtn.addEventListener('click', function() {
+                if (patternsList.style.display === 'none') {
+                    patternsList.style.display = 'block';
+                    toggleBtn.textContent = 'Ocultar detalles de patrones ▲';
+                } else {
+                    patternsList.style.display = 'none';
+                    toggleBtn.textContent = 'Ver detalles de patrones ▼';
+                }
+            });
         }
 
         // Función para actualizar porcentajes basados en el análisis real
@@ -954,103 +459,32 @@
                 warningPercentage = 0;
                 dangerPercentage = 0;
             } else {
-                // Calcular porcentajes inteligentes basados en múltiples factores
-                const textLength = (localStorage.getItem('analyzedText') || '').trim();
-                const wordCount = textLength.split(/\s+/).filter(word => word.length > 0).length;
-                const patternCount = result.total_patterns_found || 0;
-                const totalMatches = result.total_matches || 0;
-                
-                // Factor 1: Densidad de patrones (patrones únicos por palabra)
-                const patternDensity = wordCount > 0 ? (patternCount / wordCount) : 0;
-                
-                // Factor 2: Densidad de coincidencias (total matches por palabra)
-                const matchDensity = wordCount > 0 ? (totalMatches / wordCount) : 0;
-                
-                // Factor 3: Severidad promedio de los patrones
-                let averageSeverity = 0;
-                if (result.matches && result.matches.length > 0) {
-                    const severityValues = result.matches.map(match => {
-                        const severity = match.pattern_info.severity;
-                        if (typeof severity === 'string') {
-                            switch(severity.toLowerCase()) {
-                                case 'critical': return 100;
-                                case 'high': return 80;
-                                case 'medium': return 60;
-                                case 'low': return 40;
-                                default: return 50;
-                            }
-                        }
-                        return parseInt(severity) || 50;
-                    });
-                    averageSeverity = severityValues.reduce((sum, val) => sum + val, 0) / severityValues.length;
-                }
-                
-                // Factor 4: Modificador por longitud del texto
-                // Textos muy cortos son más peligrosos con los mismos patrones
-                let lengthModifier = 1.0;
-                if (wordCount <= 5) {
-                    lengthModifier = 1.5; // Textos muy cortos son más peligrosos
-                } else if (wordCount <= 15) {
-                    lengthModifier = 1.2; // Textos cortos son más peligrosos
-                } else if (wordCount <= 50) {
-                    lengthModifier = 1.0; // Textos normales
-                } else {
-                    lengthModifier = 0.8; // Textos largos son menos peligrosos proporcionalmente
-                }
-                
-                // Calcular puntuación base (0-100)
-                let dangerScore = 0;
-                
-                // Contribución de la densidad de patrones (máximo 40 puntos)
-                dangerScore += Math.min(patternDensity * 200, 40);
-                
-                // Contribución de la densidad de coincidencias (máximo 30 puntos)
-                dangerScore += Math.min(matchDensity * 150, 30);
-                
-                // Contribución de la severidad promedio (máximo 30 puntos)
-                dangerScore += (averageSeverity / 100) * 30;
-                
-                // Aplicar modificador por longitud
-                dangerScore *= lengthModifier;
-                
-                // Limitar a máximo 100
-                dangerScore = Math.min(dangerScore, 100);
-                
-                // Calcular porcentajes finales
-                if (dangerScore >= 70) {
-                    // Muy peligroso
-                    dangerPercentage = Math.round(dangerScore);
-                    warningPercentage = Math.round((100 - dangerScore) * 0.6);
-                    safePercentage = 100 - dangerPercentage - warningPercentage;
-                } else if (dangerScore >= 40) {
-                    // Moderadamente peligroso
-                    dangerPercentage = Math.round(dangerScore * 0.7);
-                    warningPercentage = Math.round(dangerScore * 0.8);
-                    safePercentage = 100 - dangerPercentage - warningPercentage;
-                } else if (dangerScore >= 20) {
-                    // Ligeramente peligroso
-                    dangerPercentage = Math.round(dangerScore * 0.5);
-                    warningPercentage = Math.round(dangerScore * 1.2);
-                    safePercentage = 100 - dangerPercentage - warningPercentage;
-                } else {
-                    // Baja peligrosidad
-                    dangerPercentage = Math.round(dangerScore * 0.3);
-                    warningPercentage = Math.round(dangerScore);
-                    safePercentage = 100 - dangerPercentage - warningPercentage;
-                }
-                
-                // Asegurar que los porcentajes no sean negativos
-                safePercentage = Math.max(safePercentage, 0);
-                warningPercentage = Math.max(warningPercentage, 0);
-                dangerPercentage = Math.max(dangerPercentage, 0);
-                
-                // Ajustar para que sumen 100%
-                const total = safePercentage + warningPercentage + dangerPercentage;
-                if (total !== 100) {
-                    const factor = 100 / total;
-                    safePercentage = Math.round(safePercentage * factor);
-                    warningPercentage = Math.round(warningPercentage * factor);
-                    dangerPercentage = 100 - safePercentage - warningPercentage;
+                // Calcular porcentajes basados en el nivel de riesgo
+                switch (result.risk_level) {
+                    case 'Low':
+                        safePercentage = 70;
+                        warningPercentage = 30;
+                        dangerPercentage = 0;
+                        break;
+                    case 'Medium':
+                        safePercentage = 50;
+                        warningPercentage = 40;
+                        dangerPercentage = 10;
+                        break;
+                    case 'High':
+                        safePercentage = 30;
+                        warningPercentage = 30;
+                        dangerPercentage = 40;
+                        break;
+                    case 'Critical':
+                        safePercentage = 10;
+                        warningPercentage = 20;
+                        dangerPercentage = 70;
+                        break;
+                    default:
+                        safePercentage = 90;
+                        warningPercentage = 10;
+                        dangerPercentage = 0;
                 }
             }
             
@@ -1059,11 +493,204 @@
             document.getElementById('danger-percentage').textContent = dangerPercentage + '%';
             
             // Actualizar descripciones
-            updateRiskDescriptions(result, {
-                safe: safePercentage,
-                warning: warningPercentage,
-                danger: dangerPercentage
+            updateRiskDescriptions(result);
+        }
+
+        // Función para mostrar patrones detectados reales
+        function displayDetectedPatterns(result) {
+            const patternsList = document.getElementById('patterns-list');
+            
+            if (!result.matches || result.matches.length === 0) {
+                patternsList.innerHTML = `
+                    <div class="no-patterns">
+                        <div class="no-patterns-icon">✅</div>
+                        <h4>No se detectaron patrones de ciberacoso</h4>
+                        <p>El texto analizado no contiene lenguaje que indique ciberacoso.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let patternsHTML = '';
+            
+            result.matches.forEach(match => {
+                const riskClass = getSeverityClass(match.pattern_info.severity);
+                const algorithmUsed = match.algorithm_used;
+                const patternInfo = match.pattern_info;
+                
+                patternsHTML += `
+                    <div class="pattern-item ${riskClass}">
+                        <div class="pattern-header">
+                            <span class="pattern-type">${patternInfo.category}</span>
+                            <span class="risk-level">Riesgo ${getSeverityText(patternInfo.severity)}</span>
+                            <span class="algorithm-used">Algoritmo: ${algorithmUsed}</span>
+                        </div>
+                        <div class="pattern-description">
+                            <p><strong>Descripción:</strong> ${patternInfo.description}</p>
+                            <div class="pattern-matches">
+                                <strong>Patrón detectado:</strong>
+                                <span class="match-highlight">"${patternInfo.pattern}"</span>
+                                <span class="match-count">(${match.total_matches} coincidencia(s))</span>
+                            </div>
+                            <div class="pattern-details">
+                                <div class="detail-item">
+                                    <strong>Posiciones en el texto:</strong> ${match.positions.join(', ')}
+                                </div>
+                                <div class="detail-item">
+                                    <strong>ID del patrón:</strong> ${patternInfo.id || 'N/A'}
+                                </div>
+                                <div class="detail-item">
+                                    <strong>Severidad:</strong> ${patternInfo.severity}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
             });
+            
+            patternsList.innerHTML = patternsHTML;
+        }
+
+        // Función para generar recomendaciones dinámicas
+        function generateDynamicRecommendations(result) {
+            const recommendationsList = document.querySelector('.recommendation-list');
+            let recommendationsHTML = '';
+            
+            if (!result.is_cyberbullying) {
+                // Recomendaciones para contenido seguro
+                recommendationsHTML = `
+                    <div class="recommendation-item">
+                        <div class="rec-icon">✅</div>
+                        <div class="rec-content">
+                            <h4>Contenido Seguro</h4>
+                            <p>El texto analizado no muestra signos de ciberacoso. Continúe promoviendo una comunicación respetuosa.</p>
+                        </div>
+                    </div>
+                    <div class="recommendation-item">
+                        <div class="rec-icon">📚</div>
+                        <div class="rec-content">
+                            <h4>Educación Preventiva</h4>
+                            <p>Mantenga programas de concientización sobre comunicación digital responsable para prevenir futuros incidentes.</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Recomendaciones basadas en el nivel de riesgo
+                switch (result.risk_level) {
+                    case 'Low':
+                        recommendationsHTML = `
+                            <div class="recommendation-item">
+                                <div class="rec-icon">👀</div>
+                                <div class="rec-content">
+                                    <h4>Monitoreo Preventivo</h4>
+                                    <p>Se detectó contenido de riesgo bajo. Realice seguimiento y eduque sobre comunicación apropiada.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">💬</div>
+                                <div class="rec-content">
+                                    <h4>Diálogo Constructivo</h4>
+                                    <p>Promueva conversaciones sobre respeto digital y las consecuencias del lenguaje inapropiado.</p>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'Medium':
+                        recommendationsHTML = `
+                            <div class="recommendation-item">
+                                <div class="rec-icon">⚠️</div>
+                                <div class="rec-content">
+                                    <h4>Intervención Moderada</h4>
+                                    <p>Se requiere atención inmediata. Contacte a los involucrados y establezca medidas correctivas.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">📋</div>
+                                <div class="rec-content">
+                                    <h4>Documentación</h4>
+                                    <p>Documente el incidente y establezca un plan de seguimiento para prevenir escalación.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">👨‍🏫</div>
+                                <div class="rec-content">
+                                    <h4>Capacitación Específica</h4>
+                                    <p>Implemente sesiones de capacitación sobre ciberacoso y sus consecuencias.</p>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'High':
+                        recommendationsHTML = `
+                            <div class="recommendation-item">
+                                <div class="rec-icon">🚨</div>
+                                <div class="rec-content">
+                                    <h4>Acción Inmediata Requerida</h4>
+                                    <p>Nivel de riesgo alto detectado. Intervenga inmediatamente y contacte a autoridades si es necesario.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">👥</div>
+                                <div class="rec-content">
+                                    <h4>Involucrar a Padres/Tutores</h4>
+                                    <p>Contacte a los padres o tutores de todos los involucrados para abordar la situación.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">🛡️</div>
+                                <div class="rec-content">
+                                    <h4>Medidas de Protección</h4>
+                                    <p>Implemente medidas de protección para la víctima y sanciones apropiadas para el agresor.</p>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'Critical':
+                        recommendationsHTML = `
+                            <div class="recommendation-item">
+                                <div class="rec-icon">🆘</div>
+                                <div class="rec-content">
+                                    <h4>Emergencia - Acción Crítica</h4>
+                                    <p>Nivel crítico de ciberacoso detectado. Contacte inmediatamente a autoridades y servicios de apoyo psicológico.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">📞</div>
+                                <div class="rec-content">
+                                    <h4>Contactar Autoridades</h4>
+                                    <p>Reporte el incidente a las autoridades competentes y preserve evidencia digital.</p>
+                                </div>
+                            </div>
+                            <div class="recommendation-item">
+                                <div class="rec-icon">💚</div>
+                                <div class="rec-content">
+                                    <h4>Apoyo Psicológico</h4>
+                                    <p>Proporcione apoyo psicológico inmediato a la víctima y considere intervención profesional.</p>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                }
+                
+                // Agregar información sobre algoritmos utilizados
+                const algorithmsUsed = result.algorithms_used || {};
+                const algorithmInfo = Object.keys(algorithmsUsed).join(', ');
+                
+                recommendationsHTML += `
+                    <div class="recommendation-item">
+                        <div class="rec-icon">🔬</div>
+                        <div class="rec-content">
+                            <h4>Análisis Técnico</h4>
+                            <p>Algoritmo(s) utilizados: ${algorithmInfo}. Total de patrones: ${result.total_patterns_found}. Coincidencias: ${result.total_matches}.</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            recommendationsList.innerHTML = recommendationsHTML;
         }
 
         // Funciones auxiliares
@@ -1088,7 +715,7 @@
         }
 
         // Función para actualizar descripciones según el nivel de riesgo
-        function updateRiskDescriptions(result, percentages) {
+        function updateRiskDescriptions(result) {
             const safeCard = document.querySelector('.summary-card.safe .description');
             const warningCard = document.querySelector('.summary-card.warning .description');
             const dangerCard = document.querySelector('.summary-card.danger .description');
@@ -1100,29 +727,32 @@
             } else {
                 const patternsCount = result.total_patterns_found;
                 const matchesCount = result.total_matches;
-                const textLength = (localStorage.getItem('analyzedText') || '').trim();
-                const wordCount = textLength.split(/\s+/).filter(word => word.length > 0).length;
                 
-                // Calcular densidad para descripciones más precisas
-                const patternDensity = wordCount > 0 ? ((patternsCount / wordCount) * 100).toFixed(1) : 0;
-                
-                // Descripciones inteligentes basadas en los porcentajes calculados
-                if (percentages.danger >= 50) {
-                    safeCard.textContent = 'Contenido con alto riesgo de ciberacoso detectado';
-                    warningCard.textContent = `${patternsCount} patrones en ${wordCount} palabras (densidad: ${patternDensity}%)`;
-                    dangerCard.textContent = `${matchesCount} coincidencias críticas detectadas`;
-                } else if (percentages.danger >= 25) {
-                    safeCard.textContent = 'Contenido con riesgo moderado de ciberacoso';
-                    warningCard.textContent = `${patternsCount} patrones requieren atención`;
-                    dangerCard.textContent = `${matchesCount} coincidencias de riesgo medio-alto`;
-                } else if (percentages.warning >= 30) {
-                    safeCard.textContent = 'Contenido mayormente seguro con observaciones';
-                    warningCard.textContent = `${patternsCount} patrón(es) de baja intensidad`;
-                    dangerCard.textContent = 'Riesgo bajo pero requiere monitoreo';
-                } else {
-                    safeCard.textContent = 'Contenido con patrones menores detectados';
-                    warningCard.textContent = `${patternsCount} patrón(es) de impacto mínimo`;
-                    dangerCard.textContent = 'Sin riesgo significativo identificado';
+                switch (result.risk_level) {
+                    case 'Low':
+                        safeCard.textContent = 'Mayormente seguro con observaciones menores';
+                        warningCard.textContent = `${patternsCount} patrón(es) de riesgo bajo detectado(s)`;
+                        dangerCard.textContent = 'Sin contenido altamente peligroso';
+                        break;
+                    case 'Medium':
+                        safeCard.textContent = 'Contenido con riesgos moderados';
+                        warningCard.textContent = `${patternsCount} patrón(es) requieren atención`;
+                        dangerCard.textContent = 'Algunos patrones de riesgo medio detectados';
+                        break;
+                    case 'High':
+                        safeCard.textContent = 'Contenido con alto riesgo de ciberacoso';
+                        warningCard.textContent = `${patternsCount} patrones problemáticos detectados`;
+                        dangerCard.textContent = `${matchesCount} coincidencias de alto riesgo`;
+                        break;
+                    case 'Critical':
+                        safeCard.textContent = 'Contenido extremadamente peligroso';
+                        warningCard.textContent = 'Múltiples patrones críticos detectados';
+                        dangerCard.textContent = `${matchesCount} patrones de ciberacoso confirmados`;
+                        break;
+                    default:
+                        safeCard.textContent = 'Contenido analizado sin clasificación';
+                        warningCard.textContent = `${patternsCount} patrón(es) detectado(s)`;
+                        dangerCard.textContent = 'Revisar manualmente';
                 }
             }
         }
