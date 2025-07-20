@@ -1,3 +1,5 @@
+![Portada del Proyecto](media/Portada%20Github.jpg)
+
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Pattern Matching](https://img.shields.io/badge/Pattern%20Matching-KMP%20%7C%20Boyer--Moore-orange)
@@ -5,10 +7,14 @@
 
 # 🛡️ Sistema de Detección de Ciberacoso Escolar
 
-> Un sistema web  que utiliza algoritmos de búsqueda de patrones para detectar y prevenir el ciberacoso en entornos educativos.
-# 🛡️ Sistema de Detección de Ciberacoso Escolar
+> Un sistema web que utiliza algoritmos de búsqueda de patrones para detectar y prevenir el ciberacoso en entornos educativos.
 
-> Un sistema web  que utiliza algoritmos de búsqueda de patrones para detectar y prevenir el ciberacoso en entornos educativos.
+## 🌐 **Acceso al Proyecto**
+
+📍 **¡Prueba el sistema en vivo!**  
+🔗 **URL:** https://web-production-5a61.up.railway.app/
+
+*El proyecto está completamente funcional y desplegado en Railway para demostración y pruebas.*
 
 ## 👥 Autores
 
