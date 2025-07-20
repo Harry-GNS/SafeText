@@ -5,7 +5,7 @@ Archivo de entrada para Railway - SafeText optimizado para usar créditos eficie
 
 from app import app
 import os
-
+## Hasta aqui es todo mi parte del código lo demas es tinitana si se dana algo este es el commit de referencia  
 if __name__ == "__main__":
     # Railway asigna automáticamente el puerto
     port = int(os.environ.get("PORT", 5000))
