@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeText - Resultados del Análisis</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>SafeText <span class="subtitle">Sistema de Detección de Ciberacoso Escolar</span></h1>
+        </div>
+        <div class="header-year">
+            <span>EPN 2025</span>
+        </div>
+    </header>
+
+    <main>
+        <div class="results-container">
+            <!-- Sección de navegación -->
+            <div class="results-nav">
+                <a href="index.html" class="btn-back">← Volver al Análisis</a>
+                <h2>Resultados del Análisis</h2>
+            </div>
+
+            <!-- Texto analizado -->
+            <div class="analyzed-text-section">
+                <h3>Texto Analizado</h3>
+                <div class="analyzed-text-box">
+                    <p id="analyzed-text">
+                        <!-- El texto analizado se mostrará aquí -->
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+                    </p>
+                </div>
+                <div class="text-stats">
+                    <span class="stat-item">Caracteres: <strong id="char-count">127</strong></span>
+                    <span class="stat-item">Palabras: <strong id="word-count">23</strong></span>
+                    <span class="stat-item">Líneas: <strong id="line-count">3</strong></span>
+                </div>
+            </div>
+
+            <!-- Resultados del análisis -->
+            <div class="analysis-results">
+                <div class="results-summary">
+                    <h3>Resumen del Análisis</h3>
+                    <div class="summary-cards">
+                        <div class="summary-card safe">
+                            <div class="card-icon">✓</div>
+                            <div class="card-content">
+                                <h4>Contenido Seguro</h4>
+                                <p class="percentage" id="safe-percentage">85%</p>
+                                <p class="description">No se detectaron patrones de ciberacoso</p>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card warning">
+                            <div class="card-icon">⚠</div>
+                            <div class="card-content">
+                                <h4>Contenido Sospechoso</h4>
+                                <p class="percentage" id="warning-percentage">15%</p>
+                                <p class="description">Algunos patrones requieren atención</p>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card danger">
+                            <div class="card-icon">✕</div>
+                            <div class="card-content">
+                                <h4>Contenido Peligroso</h4>
+                                <p class="percentage" id="danger-percentage">0%</p>
+                                <p class="description">Patrones de ciberacoso detectados</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalles de detección -->
+                <div class="detection-details">
+                    <h3>Patrones Detectados</h3>
+                    <div class="patterns-list" id="patterns-list">
+                        <!-- Los patrones detectados se mostrarán aquí dinámicamente -->
+                        <div class="pattern-item low-risk">
+                            <div class="pattern-header">
+                                <span class="pattern-type">Lenguaje Informal</span>
+                                <span class="risk-level">Riesgo Bajo</span>
+                            </div>
+                            <div class="pattern-description">
+                                <p>Se detectó uso de lenguaje coloquial que podría interpretarse como agresivo en contexto formal.</p>
+                                <div class="pattern-matches">
+                                    <strong>Coincidencias encontradas:</strong>
+                                    <span class="match-highlight">"ese tipo"</span>, 
+                                    <span class="match-highlight">"no me molestes"</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pattern-item medium-risk">
+                            <div class="pattern-header">
+                                <span class="pattern-type">Tono Agresivo</span>
+                                <span class="risk-level">Riesgo Medio</span>
+                            </div>
+                            <div class="pattern-description">
+                                <p>Identificadas expresiones con tono confrontativo que podrían escalar a situaciones de acoso.</p>
+                                <div class="pattern-matches">
+                                    <strong>Coincidencias encontradas:</strong>
+                                    <span class="match-highlight">"cállate"</span>, 
+                                    <span class="match-highlight">"eres un idiota"</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recomendaciones -->
+                <div class="recommendations">
+                    <h3>Recomendaciones</h3>
+                    <div class="recommendation-list">
+                        <div class="recommendation-item">
+                            <div class="rec-icon">💡</div>
+                            <div class="rec-content">
+                                <h4>Supervisión Recomendada</h4>
+                                <p>Se sugiere revisar manualmente el contenido identificado para determinar el contexto y la intención real del mensaje.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="recommendation-item">
+                            <div class="rec-icon">📚</div>
+                            <div class="rec-content">
+                                <h4>Educación Preventiva</h4>
+                                <p>Implementar programas de concientización sobre comunicación digital responsable y respeto en línea.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="recommendation-item">
+                            <div class="rec-icon">🔄</div>
+                            <div class="rec-content">
+                                <h4>Monitoreo Continuo</h4>
+                                <p>Establecer un sistema de seguimiento para evaluar la evolución del comportamiento comunicativo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="results-actions">
+                <button class="btn-secondary" id="export-report">📄 Exportar Reporte</button>
+                <button class="btn-secondary" id="save-results">💾 Guardar Resultados</button>
+                <button class="btn-primary" id="new-analysis">🔍 Nuevo Análisis</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Pie de página -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 SafeText - Sistema de Detección de Ciberacoso Escolar</p>
+            <p>Creado por <strong>Harry Guajan</strong> y <strong>Joel Tinitana</strong></p>
+            <p>Escuela Politécnica Nacional (EPN) - Estructura de Datos y Algoritmos II</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Términos de Uso</a>
+                <span class="separator">•</span>
+                <a href="#" class="footer-link">Política de Privacidad</a>
+                <span class="separator">•</span>
+                <a href="#" class="footer-link">Contacto</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Funcionalidad para los botones de acción
+        document.getElementById('new-analysis').addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+        
+        document.getElementById('export-report').addEventListener('click', function() {
+            // Funcionalidad para exportar reporte
+            alert('Funcionalidad de exportación en desarrollo');
+        });
+        
+        document.getElementById('save-results').addEventListener('click', function() {
+            // Funcionalidad para guardar resultados
+            alert('Resultados guardados exitosamente');
+        });
+        
+        // Animación de entrada para las tarjetas
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.summary-card, .pattern-item, .recommendation-item');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>
