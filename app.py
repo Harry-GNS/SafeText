@@ -288,15 +288,14 @@ def get_recommendations():
         if recommendations_result['success']:
             return jsonify({
                 'success': True,
-                'recommendations': recommendations_result['recommendations'],
-                'total_recommendations': recommendations_result['total_recommendations'],
+                'recommendation': recommendations_result['recommendation'],
                 'generated_at': analyzer._get_timestamp()
             })
         else:
             return jsonify({
                 'success': False,
                 'error': recommendations_result.get('error', 'Error generando recomendaciones'),
-                'fallback_recommendations': recommendations_result.get('recommendations', [])
+                'fallback_recommendation': recommendations_result.get('recommendation')
             }), 500
             
     except Exception as e:

@@ -216,6 +216,174 @@
             text-align: center;
         }
 
+        /* Estilos para la recomendación única y resumen */
+        .single-recommendation {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .main-recommendation {
+            border-left: 4px solid #495057;
+        }
+
+        .analysis-summary-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .summary-title {
+            color: #495057;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 0.5rem;
+        }
+
+        .summary-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .summary-status.bajo,
+        .summary-status.none {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .summary-status.low {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .summary-status.medium {
+            background-color: #ffeaa7;
+            color: #6c5ce7;
+        }
+
+        .summary-status.high {
+            background-color: #fdcb6e;
+            color: #e17055;
+        }
+
+        .summary-status.critical {
+            background-color: #fab1a0;
+            color: #d63031;
+        }
+
+        .summary-status.desconocido {
+            background-color: #e9ecef;
+            color: #6c757d;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: currentColor;
+        }
+
+        .summary-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+
+        .detail-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .summary-description {
+            margin-bottom: 1rem;
+        }
+
+        .summary-description p {
+            color: #6c757d;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .next-steps {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid #6c757d;
+            border: 1px solid #e9ecef;
+        }
+
+        .next-steps strong {
+            color: #495057;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .next-steps p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        /* Estilos para el tip de revisión manual */
+        .manual-review-tip {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid #6c757d;
+        }
+
+        .tip-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tip-icon {
+            font-size: 1.2rem;
+            color: #6c757d;
+        }
+
+        .tip-header h5 {
+            margin: 0;
+            color: #495057;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .manual-review-tip p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            font-style: italic;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .recommendations-grid {
@@ -427,22 +595,30 @@
             
             reportContent += `RESUMEN: ${data.analysis_summary}\n\n`;
             
-            // Agregar recomendaciones al reporte
-            const recommendationsCards = document.querySelectorAll('.recommendation-card');
-            if (recommendationsCards.length > 0) {
-                reportContent += `RECOMENDACIONES PERSONALIZADAS:\n`;
-                reportContent += `-------------------------------\n`;
-                recommendationsCards.forEach((card, index) => {
-                    const title = card.querySelector('.recommendation-title')?.textContent || 'Recomendación';
-                    const description = card.querySelector('.recommendation-description')?.textContent || '';
-                    const action = card.querySelector('.recommendation-action p')?.textContent || '';
-                    const priority = card.querySelector('.priority-badge')?.textContent || 'Media';
-                    
-                    reportContent += `${index + 1}. ${title}\n`;
-                    reportContent += `   Prioridad: ${priority}\n`;
-                    reportContent += `   Descripción: ${description}\n`;
-                    reportContent += `   Acción: ${action}\n\n`;
-                });
+            // Agregar recomendación al reporte
+            const recommendationCard = document.querySelector('.recommendation-card.main-recommendation');
+            const manualTip = document.querySelector('.manual-review-tip');
+            
+            if (recommendationCard) {
+                reportContent += `RECOMENDACIÓN PERSONALIZADA:\n`;
+                reportContent += `---------------------------\n`;
+                
+                const title = recommendationCard.querySelector('.recommendation-title')?.textContent || 'Recomendación';
+                const description = recommendationCard.querySelector('.recommendation-description')?.textContent || '';
+                const action = recommendationCard.querySelector('.recommendation-action p')?.textContent || '';
+                const priority = recommendationCard.querySelector('.priority-badge')?.textContent || 'Media';
+                
+                reportContent += `Título: ${title}\n`;
+                reportContent += `Prioridad: ${priority}\n`;
+                reportContent += `Descripción: ${description}\n`;
+                reportContent += `Acción: ${action}\n\n`;
+            }
+            
+            if (manualTip) {
+                reportContent += `RECOMENDACIÓN GENERAL:\n`;
+                reportContent += `---------------------\n`;
+                const tipText = manualTip.querySelector('p')?.textContent || '';
+                reportContent += `${tipText}\n\n`;
             }
             
             reportContent += `---\n`;
@@ -590,8 +766,8 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Mostrar recomendaciones del backend
-                    displayRecommendations(data.recommendations, container);
+                    // Mostrar solo la recomendación del backend
+                    displaySingleRecommendation(data.recommendation, container);
                 } else {
                     console.error('Error del servidor:', data.error);
                     displayFallbackRecommendations(container);
@@ -621,40 +797,33 @@
             return recommendations.slice(0, count);
         }
 
-        // Función para mostrar las recomendaciones
-        function displayRecommendations(recommendations, container) {
-            let html = '<div class="recommendations-grid">';
-            
-            recommendations.forEach((rec, index) => {
-                html += `
-                    <div class="recommendation-card" style="animation-delay: ${index * 0.1}s">
+        // Función para mostrar una sola recomendación (sin resumen)
+        function displaySingleRecommendation(recommendation, container) {
+            let html = `
+                <div class="single-recommendation">
+                    <div class="recommendation-card main-recommendation">
                         <div class="recommendation-header">
-                            <span class="recommendation-icon">${rec.icon}</span>
-                            <h4 class="recommendation-title">${rec.title}</h4>
-                            <span class="priority-badge priority-${rec.priority}">
-                                Prioridad ${rec.priority === 1 ? 'Alta' : rec.priority === 2 ? 'Media' : 'Baja'}
+                            <span class="recommendation-icon">${recommendation.icon}</span>
+                            <h4 class="recommendation-title">${recommendation.title}</h4>
+                            <span class="priority-badge priority-${recommendation.priority}">
+                                Prioridad ${recommendation.priority === 1 ? 'Alta' : recommendation.priority === 2 ? 'Media' : 'Baja'}
                             </span>
                         </div>
                         <div class="recommendation-content">
-                            <p class="recommendation-description">${rec.description}</p>
+                            <p class="recommendation-description">${recommendation.description}</p>
                             <div class="recommendation-action">
                                 <strong>Acción recomendada:</strong>
-                                <p>${rec.action}</p>
+                                <p>${recommendation.action}</p>
                             </div>
                         </div>
                     </div>
-                `;
-            });
-            
-            html += '</div>';
-            
-            // Agregar información adicional
-            html += `
-                <div class="recommendations-footer">
-                    <div class="recommendation-note">
-                        <span class="note-icon">💡</span>
-                        <p>Estas recomendaciones han sido generadas automáticamente basándose en los patrones detectados en el análisis. 
-                        Se recomienda adaptar estas sugerencias al contexto específico de cada situación.</p>
+                    
+                    <div class="manual-review-tip">
+                        <div class="tip-header">
+                            <span class="tip-icon">💡</span>
+                            <h5>Recomendación General</h5>
+                        </div>
+                        <p>Se sugiere una revisión manual del contenido. Evalúe el contexto completo de la comunicación y tome medidas apropiadas.</p>
                     </div>
                 </div>
             `;
@@ -662,26 +831,17 @@
             container.innerHTML = html;
         }
 
-        // Función de respaldo para mostrar recomendaciones básicas
+        // Función de respaldo para mostrar recomendación básica
         function displayFallbackRecommendations(container) {
-            const fallbackRecs = [
-                {
-                    icon: '👀',
-                    title: 'Revisión Manual Recomendada',
-                    description: 'Se sugiere una revisión manual del contenido.',
-                    action: 'Evalúe el contexto completo de la comunicación y tome medidas apropiadas.',
-                    priority: 1
-                },
-                {
-                    icon: '📚',
-                    title: 'Educación Preventiva',
-                    description: 'La educación es fundamental para prevenir el ciberacoso.',
-                    action: 'Implemente programas de concientización sobre comunicación digital responsable.',
-                    priority: 2
-                }
-            ];
+            const fallbackRec = {
+                icon: '�',
+                title: 'Educación y Prevención',
+                description: 'La educación continua es la mejor herramienta para prevenir el ciberacoso.',
+                action: 'Implemente programas de concientización sobre comunicación digital responsable y respeto en línea.',
+                priority: 1
+            };
             
-            displayRecommendations(fallbackRecs, container);
+            displaySingleRecommendation(fallbackRec, container);
         }
 
         // Función para crear texto con patrones resaltados
