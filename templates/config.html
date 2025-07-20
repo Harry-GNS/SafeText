@@ -146,27 +146,64 @@
     </footer>
 
     <script>
-        // Datos simulados basados en el CSV
-        let patterns = [
-            {id: 1, mensaje: "idiota", gravedad: "Alto", categoria: "Insulto", etiqueta: "Ofensivo"},
-            {id: 2, mensaje: "estúpido", gravedad: "Alto", categoria: "Insulto", etiqueta: "Ofensivo"},
-            {id: 3, mensaje: "imbécil", gravedad: "Alto", categoria: "Insulto", etiqueta: "Ofensivo"},
-            {id: 4, mensaje: "tonto", gravedad: "Medio", categoria: "Insulto", etiqueta: "Ofensivo"},
-            {id: 5, mensaje: "feo", gravedad: "Bajo", categoria: "Apariencia", etiqueta: "Físico"},
-            {id: 6, mensaje: "gordo", gravedad: "Medio", categoria: "Apariencia", etiqueta: "Físico"},
-            {id: 7, mensaje: "perdedor", gravedad: "Medio", categoria: "Despectivo", etiqueta: "Social"},
-            {id: 8, mensaje: "fracasado", gravedad: "Alto", categoria: "Despectivo", etiqueta: "Social"},
-            {id: 9, mensaje: "inútil", gravedad: "Alto", categoria: "Despectivo", etiqueta: "Personal"},
-            {id: 10, mensaje: "nadie te quiere", gravedad: "Alto", categoria: "Exclusión", etiqueta: "Social"},
-            {id: 11, mensaje: "vete a morir", gravedad: "Muy Alto", categoria: "Amenaza", etiqueta: "Violento"},
-            {id: 12, mensaje: "te voy a pegar", gravedad: "Muy Alto", categoria: "Amenaza", etiqueta: "Físico"},
-            {id: 13, mensaje: "cállate", gravedad: "Medio", categoria: "Agresivo", etiqueta: "Verbal"},
-            {id: 14, mensaje: "déjame en paz", gravedad: "Bajo", categoria: "Rechazo", etiqueta: "Social"},
-            {id: 15, mensaje: "no me hables", gravedad: "Bajo", categoria: "Rechazo", etiqueta: "Social"}
-        ];
-
+        // Variables globales
+        let patterns = [];
         let currentPage = 1;
         const patternsPerPage = 9;
+
+        // Función para cargar patrones desde el CSV
+        async function loadPatternsFromCSV() {
+            try {
+                const response = await fetch('../patrones.csv');
+                const csvText = await response.text();
+                
+                // Parsear CSV
+                const lines = csvText.trim().split('\n');
+                const headers = lines[0].split(',');
+                
+                patterns = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    if (values.length >= 5) {
+                        patterns.push({
+                            id: parseInt(values[0]),
+                            mensaje: values[1].replace(/"/g, ''), // Remover comillas si las hay
+                            gravedad: mapGravedad(values[3]), // Mapear nivel_gravedad a formato legible
+                            categoria: values[2].replace(/"/g, ''),
+                            etiqueta: values[4].replace(/"/g, '')
+                        });
+                    }
+                }
+                
+                loadPatterns();
+                updatePagination();
+            } catch (error) {
+                console.error('Error cargando patrones:', error);
+                // Cargar datos de respaldo si falla la carga del CSV
+                loadDefaultPatterns();
+            }
+        }
+
+        // Función para mapear niveles de gravedad numéricos a texto
+        function mapGravedad(nivelNumerico) {
+            const nivel = parseInt(nivelNumerico);
+            if (nivel >= 85) return "Muy Alto";
+            if (nivel >= 70) return "Alto";
+            if (nivel >= 50) return "Medio";
+            return "Bajo";
+        }
+
+        // Datos de respaldo en caso de error
+        function loadDefaultPatterns() {
+            patterns = [
+                {id: 1, mensaje: "eres un inútil", gravedad: "Muy Alto", categoria: "insulto directo", etiqueta: "desprecio"},
+                {id: 2, mensaje: "no sirves para nada", gravedad: "Muy Alto", categoria: "humillación", etiqueta: "desprecio"},
+                {id: 3, mensaje: "cállate de una vez", gravedad: "Alto", categoria: "agresión verbal", etiqueta: "tono imperativo"},
+                {id: 4, mensaje: "ese tipo me da asco", gravedad: "Medio", categoria: "lenguaje ofensivo", etiqueta: "rechazo social"}
+            ];
+            loadPatterns();
+            updatePagination();
+        }
 
         function loadPatterns() {
             const tbody = document.getElementById('patterns-tbody');
@@ -185,8 +222,8 @@
                     <td>${pattern.categoria}</td>
                     <td>${pattern.etiqueta}</td>
                     <td>
-                        <button class="btn-action edit-btn" onclick="editPattern(${pattern.id})">✏️</button>
-                        <button class="btn-action delete-btn" onclick="deletePattern(${pattern.id})">🗑️</button>
+                        <button class="btn-action edit-btn" onclick="editPattern(${pattern.id})">Editar</button>
+                        <button class="btn-action delete-btn" onclick="deletePattern(${pattern.id})">Eliminar</button>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -274,8 +311,37 @@
         }
 
         function savePatterns() {
-            // Aquí iría la lógica para guardar en el CSV
-            alert('Patrones guardados exitosamente');
+            // Convertir patrones de vuelta a formato CSV
+            let csvContent = "id,frase,categorias,nivel_gravedad,descripcion\n";
+            
+            patterns.forEach(pattern => {
+                const nivel = gravedadToNumber(pattern.gravedad);
+                csvContent += `${pattern.id},"${pattern.mensaje}","${pattern.categoria}",${nivel},"${pattern.etiqueta}"\n`;
+            });
+            
+            // Crear blob y descargar archivo
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'patrones_actualizado.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            alert('Patrones exportados como patrones_actualizado.csv');
+        }
+
+        // Función para convertir gravedad de texto a número
+        function gravedadToNumber(gravedad) {
+            switch(gravedad) {
+                case "Muy Alto": return 90;
+                case "Alto": return 75;
+                case "Medio": return 60;
+                case "Bajo": return 40;
+                default: return 50;
+            }
         }
 
         // Event Listeners
@@ -286,10 +352,9 @@
             window.location.href = 'index.html';
         });
 
-        // Cargar patrones al iniciar
+        // Cargar patrones del CSV al iniciar
         document.addEventListener('DOMContentLoaded', function() {
-            loadPatterns();
-            updatePagination();
+            loadPatternsFromCSV();
         });
     </script>
 </body>
