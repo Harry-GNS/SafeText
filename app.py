@@ -3,279 +3,206 @@ API Flask para el sistema de detección de ciberacoso.
 Conecta el frontend con los algoritmos de backend.
 """
 
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
 import sys
+import time
+from werkzeug.utils import secure_filename
+import csv
 
 # Agregar el directorio actual al path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from algorithms.analyzer import CyberbullyingAnalyzer
 from algorithms.selector import AlgorithmSelector
-##Comentario Harry
 
 app = Flask(__name__)
-CORS(app)  # Permitir solicitudes desde el frontend
+CORS(app)
 
-# Configuración
+# ---------------- CONFIG ----------------
 app.config['SECRET_KEY'] = 'safetext-cyberbullying-detection-2025'
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Inicializar el analizador
+ALLOWED_EXTENSIONS = {'csv', 'txt'}
+TIEMPO_MAXIMO = 86400  # 24h
+MAX_FILES = 5          # máximo de archivos en uploads
+BASE_FILE = 'patrones.csv'
+
+# ---------------- FUNCIONES AUXILIARES ----------------
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def limpiar_archivos():
+    ahora = time.time()
+    for archivo in os.listdir(UPLOAD_FOLDER):
+        ruta = os.path.join(UPLOAD_FOLDER, archivo)
+        if os.path.isfile(ruta):
+            edad = ahora - os.path.getctime(ruta)
+            if edad > TIEMPO_MAXIMO:
+                os.remove(ruta)
+                print(f"[Limpieza] Archivo eliminado por antigüedad: {archivo}")
+
+def cargar_todos_los_patrones():
+    patrones_totales = []
+    # base
+    base_path = os.path.join(os.getcwd(), BASE_FILE)
+    if os.path.exists(base_path):
+        with open(base_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                patrones_totales.append({
+                    'id': row.get('id', ''),
+                    'pattern': row.get('frase', ''),
+                    'category': row.get('categorias', ''),
+                    'severity': row.get('nivel_gravedad', ''),
+                    'description': row.get('descripcion', '')
+                })
+    # uploads
+    for archivo in os.listdir(UPLOAD_FOLDER):
+        ruta = os.path.join(UPLOAD_FOLDER, archivo)
+        if os.path.isfile(ruta) and allowed_file(archivo):
+            try:
+                with open(ruta, 'r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        patrones_totales.append({
+                            'id': row.get('id', ''),
+                            'pattern': row.get('frase', ''),
+                            'category': row.get('categorias', ''),
+                            'severity': row.get('nivel_gravedad', ''),
+                            'description': row.get('descripcion', '')
+                        })
+            except Exception as e:
+                print(f"[Error leyendo {archivo}] {e}")
+    return patrones_totales
+
+# ---------------- INICIALIZAR ----------------
 analyzer = CyberbullyingAnalyzer()
 selector = AlgorithmSelector()
 
+# ---------------- RUTAS PÁGINAS ----------------
 @app.route('/')
 def index():
-    """Redirige a la página principal del frontend."""
     return send_from_directory('templates', 'index.html')
 
 @app.route('/index.html')
 def index_page():
-    """Sirve la página principal."""
     return send_from_directory('templates', 'index.html')
 
 @app.route('/config.html')
 def config_page():
-    """Sirve la página de configuración."""
     return send_from_directory('templates', 'config.html')
-#Comentario XD
+
 @app.route('/resultados.html')
 def results_page():
-    """Sirve la página de resultados."""
     return send_from_directory('templates', 'resultados.html')
 
 @app.route('/templates/<path:filename>')
 def serve_templates(filename):
-    """Sirve archivos de templates."""
     return send_from_directory('templates', filename)
 
 @app.route('/static/<path:filename>')
 def serve_static(filename):
-    """Sirve archivos estáticos."""
     return send_from_directory('static', filename)
 
-@app.route('/api/analyze', methods=['POST'])
-def analyze_text():
-    """
-    Analiza un texto para detectar ciberacoso.
-    
-    Request JSON:
-    {
-        "text": "Texto a analizar"
-    }
-    
-    Response JSON:
-    {
-        "success": true,
-        "result": { ... análisis completo ... }
-    }
-    """
-    try:
-        data = request.get_json()
-        
-        if not data or 'text' not in data:
-            return jsonify({
-                'success': False,
-                'error': 'Texto no proporcionado'
-            }), 400
-        
-        text = data['text']
-        
-        if not text.strip():
-            return jsonify({
-                'success': False,
-                'error': 'El texto no puede estar vacío'
-            }), 400
-        
-        # Realizar el análisis
-        result = analyzer.analyze_text(text)
-        
-        return jsonify({
-            'success': True,
-            'result': result
-        })
-        
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': f'Error en el análisis: {str(e)}'
-        }), 500
-
-@app.route('/api/analyze-pattern', methods=['POST'])
-def analyze_pattern():
-    """
-    Analiza las características de un patrón específico.
-    
-    Request JSON:
-    {
-        "pattern": "patrón a analizar"
-    }
-    
-    Response JSON:
-    {
-        "success": true,
-        "analysis": { ... análisis del patrón ... }
-    }
-    """
-    try:
-        data = request.get_json()
-        
-        if not data or 'pattern' not in data:
-            return jsonify({
-                'success': False,
-                'error': 'Patrón no proporcionado'
-            }), 400
-        
-        pattern = data['pattern']
-        
-        # Analizar el patrón
-        analysis = selector.analyze_pattern(pattern)
-        
-        return jsonify({
-            'success': True,
-            'analysis': analysis
-        })
-        
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': f'Error en el análisis del patrón: {str(e)}'
-        }), 500
-
-@app.route('/api/search-pattern', methods=['POST'])
-def search_pattern():
-    """
-    Busca un patrón específico en un texto.
-    
-    Request JSON:
-    {
-        "text": "Texto donde buscar",
-        "pattern": "Patrón a buscar"
-    }
-    
-    Response JSON:
-    {
-        "success": true,
-        "result": { ... resultado de la búsqueda ... }
-    }
-    """
-    try:
-        data = request.get_json()
-        
-        if not data or 'text' not in data or 'pattern' not in data:
-            return jsonify({
-                'success': False,
-                'error': 'Texto y patrón son requeridos'
-            }), 400
-        
-        text = data['text']
-        pattern = data['pattern']
-        
-        if not text.strip() or not pattern.strip():
-            return jsonify({
-                'success': False,
-                'error': 'El texto y el patrón no pueden estar vacíos'
-            }), 400
-        
-        # Buscar el patrón
-        result = selector.search_pattern(text, pattern)
-        
-        return jsonify({
-            'success': True,
-            'result': result
-        })
-        
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': f'Error en la búsqueda: {str(e)}'
-        }), 500
-
+# ---------------- API PRINCIPAL ----------------
 @app.route('/api/patterns', methods=['GET'])
 def get_patterns():
-    """
-    Obtiene todos los patrones cargados.
-    
-    Response JSON:
-    {
-        "success": true,
-        "patterns": [ ... lista de patrones ... ],
-        "statistics": { ... estadísticas ... }
-    }
-    """
     try:
-        patterns = analyzer.patterns
-        statistics = analyzer.get_pattern_statistics()
-        
-        return jsonify({
-            'success': True,
-            'patterns': patterns,
-            'statistics': statistics
-        })
-        
+        patterns = cargar_todos_los_patrones()
+        return jsonify({'success': True, 'patterns': patterns})
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': f'Error al obtener patrones: {str(e)}'
-        }), 500
+        return jsonify({'success': False, 'error': f'Error al obtener patrones: {str(e)}'}), 500
 
-@app.route('/api/patterns/reload', methods=['POST'])
-def reload_patterns():
-    """
-    Recarga los patrones desde el archivo CSV.
-    
-    Response JSON:
-    {
-        "success": true,
-        "message": "Patrones recargados exitosamente",
-        "total_patterns": número_de_patrones
-    }
-    """
+@app.route('/api/upload-patterns', methods=['POST'])
+def upload_patterns():
     try:
-        analyzer.load_patterns()
-        
-        return jsonify({
-            'success': True,
-            'message': 'Patrones recargados exitosamente',
-            'total_patterns': len(analyzer.patterns)
-        })
-        
+        limpiar_archivos()
+        # validar cantidad
+        archivos_existentes = os.listdir(UPLOAD_FOLDER)
+        if len(archivos_existentes) >= MAX_FILES:
+            return jsonify({'success': False, 'error': 'Se alcanzó el máximo de archivos permitidos.'}), 400
+
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'error': 'No se envió ningún archivo'}), 400
+
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'success': False, 'error': 'Nombre de archivo vacío'}), 400
+
+        # proteger nombre base
+        if file.filename.lower() == BASE_FILE.lower():
+            return jsonify({'success': False, 'error': 'No se puede subir un archivo con el nombre reservado patrones.csv'}), 400
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+
+            if os.path.exists(filepath):
+                return jsonify({'success': False, 'error': 'El archivo ya existe en el servidor.'}), 400
+
+            # guardar provisional
+            file.save(filepath)
+
+            # validar encabezados
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    header = f.readline().strip().lower().split(',')
+                    columnas = ['id', 'frase', 'categorias', 'nivel_gravedad', 'descripcion']
+                    for col in columnas:
+                        if col not in [h.strip() for h in header]:
+                            os.remove(filepath)
+                            return jsonify({'success': False, 'error': f'Falta columna requerida: {col}'}), 400
+            except Exception as e:
+                os.remove(filepath)
+                return jsonify({'success': False, 'error': f'Archivo inválido: {str(e)}'}), 400
+
+            return jsonify({'success': True, 'message': f'{filename} subido correctamente.'})
+        else:
+            return jsonify({'success': False, 'error': 'Formato no permitido (solo .csv o .txt)'}), 400
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': f'Error al recargar patrones: {str(e)}'
-        }), 500
+        return jsonify({'success': False, 'error': f'Error al subir archivo: {str(e)}'}), 500
 
-@app.route('/api/test', methods=['GET'])
-def test_api():
-    """
-    Endpoint de prueba para verificar que la API funciona.
-    """
-    return jsonify({
-        'success': True,
-        'message': 'API de SafeText funcionando correctamente',
-        'version': '1.0.0',
-        'algorithms': ['KMP', 'Boyer-Moore'],
-        'total_patterns': len(analyzer.patterns)
-    })
+@app.route('/api/list-files', methods=['GET'])
+def list_files():
+    try:
+        files = []
+        # base
+        base_path = os.path.join(os.getcwd(), BASE_FILE)
+        if os.path.exists(base_path):
+            size = os.path.getsize(base_path) // 1024
+            files.append({'name': BASE_FILE, 'size': size, 'protected': True})
+        # uploads
+        for archivo in os.listdir(UPLOAD_FOLDER):
+            ruta = os.path.join(UPLOAD_FOLDER, archivo)
+            if os.path.isfile(ruta):
+                size = os.path.getsize(ruta) // 1024
+                files.append({'name': archivo, 'size': size, 'protected': False})
+        return jsonify({'success': True, 'files': files})
+    except Exception as e:
+        return jsonify({'success': False, 'error': f'No se pudieron listar los archivos: {str(e)}'}), 500
 
-@app.errorhandler(404)
-def not_found(error):
-    """Maneja errores 404."""
-    return jsonify({
-        'success': False,
-        'error': 'Endpoint no encontrado'
-    }), 404
+@app.route('/api/delete-file', methods=['POST'])
+def delete_file():
+    try:
+        data = request.get_json()
+        if not data or 'filename' not in data:
+            return jsonify({'success': False, 'error': 'Archivo no especificado'}), 400
+        filename = data['filename']
+        if filename.lower() == BASE_FILE.lower():
+            return jsonify({'success': False, 'error': 'No se puede eliminar el archivo base'}), 400
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            return jsonify({'success': True, 'message': f'{filename} eliminado correctamente'})
+        else:
+            return jsonify({'success': False, 'error': 'El archivo no existe'}), 400
+    except Exception as e:
+        return jsonify({'success': False, 'error': f'Error al eliminar archivo: {str(e)}'}), 500
 
-@app.errorhandler(500)
-def internal_error(error):
-    """Maneja errores 500."""
-    return jsonify({
-        'success': False,
-        'error': 'Error interno del servidor'
-    }), 500
-
+# ---------------- MAIN ----------------
 if __name__ == '__main__':
     print("=" * 60)
     print("SafeText - Sistema de Detección de Ciberacoso")
@@ -283,11 +210,7 @@ if __name__ == '__main__':
     print("Desarrollado por Harry Guajan y Joel Tinitana")
     print("EPN - Estructura de Datos y Algoritmos II")
     print("=" * 60)
-    
-    # Cargar patrones al iniciar
     print(f"Patrones cargados: {len(analyzer.patterns)}")
-    
-    # Iniciar servidor
+    limpiar_archivos()
     print("Iniciando servidor en http://localhost:5000")
     app.run(debug=True, host='0.0.0.0', port=5000)
-

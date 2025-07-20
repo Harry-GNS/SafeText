@@ -7,355 +7,226 @@
     <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <h1>SafeText <span class="subtitle">Sistema de Detección de Ciberacoso Escolar</span></h1>
+<header>
+    <div class="header-content">
+        <h1>SafeText <span class="subtitle">Sistema de Detección de Ciberacoso Escolar</span></h1>
+    </div>
+    <div class="header-year">
+        <span>EPN 2025</span>
+    </div>
+</header>
+
+<main>
+    <div class="config-container">
+        <div class="config-nav">
+            <a href="index.html" class="btn-back">← Volver al Inicio</a>
+            <h2>Configuración de Patrones</h2>
         </div>
-        <div class="header-year">
-            <span>EPN 2025</span>
+
+        <!-- Tabla de patrones -->
+        <div class="patterns-section">
+            <h3>Patrones a detectar</h3>
+            <div class="table-container">
+                <table class="patterns-table" id="patterns-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Mensaje</th>
+                            <th>Gravedad</th>
+                            <th>Categoría</th>
+                            <th>Etiqueta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patterns-tbody"></tbody>
+                </table>
+            </div>
+            <div class="pagination" id="pagination"></div>
         </div>
-    </header>
 
-    <main>
-        <div class="config-container">
-            <!-- Navegación -->
-            <div class="config-nav">
-                <a href="index.html" class="btn-back">← Volver al Inicio</a>
-                <h2>Configuración de Patrones</h2>
-            </div>
-
-            <!-- Sección de patrones a detectar -->
-            <div class="patterns-section">
-                <h3>Patrones a detectar</h3>
-                
-                <div class="table-container">
-                    <table class="patterns-table" id="patterns-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Mensaje</th>
-                                <th>Gravedad</th>
-                                <th>Categoría</th>
-                                <th>Etiqueta</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="patterns-tbody">
-                            <!-- Los patrones se cargarán dinámicamente aquí -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Paginación -->
-                <div class="pagination" id="pagination">
-                    <button class="pagination-btn" onclick="changePage(1)">1</button>
-                    <button class="pagination-btn active" onclick="changePage(2)">2</button>
-                    <button class="pagination-btn" onclick="changePage(3)">3</button>
-                    <button class="pagination-btn" onclick="changePage(4)">4</button>
-                    <button class="pagination-btn" onclick="changePage(5)">5</button>
-                    <button class="pagination-btn" onclick="changePage(6)">6</button>
-                    <button class="pagination-btn" onclick="changePage(7)">7</button>
-                    <button class="pagination-btn" onclick="changePage(8)">8</button>
-                    <button class="pagination-btn" onclick="changePage(9)">9</button>
-                </div>
-            </div>
-
-            <!-- Sección para añadir patrón -->
-            <div class="add-pattern-section">
-                <h3>Añadir Patrón</h3>
-                
-                <div class="add-pattern-form">
-                    <table class="add-pattern-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Mensaje</th>
-                                <th>Gravedad</th>
-                                <th>Categoría</th>
-                                <th>Etiqueta</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><input type="number" id="new-id" class="form-input" readonly></td>
-                                <td><input type="text" id="new-mensaje" class="form-input" placeholder="Escriba el patrón a detectar"></td>
-                                <td>
-                                    <select id="new-gravedad" class="form-input">
-                                        <option value="Bajo">Bajo</option>
-                                        <option value="Medio">Medio</option>
-                                        <option value="Alto">Alto</option>
-                                        <option value="Muy Alto">Muy Alto</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <select id="new-categoria" class="form-input">
-                                        <option value="Insulto">Insulto</option>
-                                        <option value="Amenaza">Amenaza</option>
-                                        <option value="Despectivo">Despectivo</option>
-                                        <option value="Exclusión">Exclusión</option>
-                                        <option value="Apariencia">Apariencia</option>
-                                        <option value="Agresivo">Agresivo</option>
-                                        <option value="Rechazo">Rechazo</option>
-                                        <option value="Emocional">Emocional</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <select id="new-etiqueta" class="form-input">
-                                        <option value="Ofensivo">Ofensivo</option>
-                                        <option value="Físico">Físico</option>
-                                        <option value="Social">Social</option>
-                                        <option value="Personal">Personal</option>
-                                        <option value="Violento">Violento</option>
-                                        <option value="Verbal">Verbal</option>
-                                        <option value="Negativo">Negativo</option>
-                                    </select>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
-                    <div class="form-actions">
-                        <button class="btn-add" id="add-pattern-btn">Añadir</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Botones de acción -->
-            <div class="config-actions">
-                <button class="btn-secondary" id="reset-btn">Restablecer</button>
-                <button class="btn-secondary" id="save-btn">Guardar</button>
-                <button class="btn-primary" id="back-btn">Volver</button>
-            </div>
+        <!-- Subir archivo -->
+        <div class="upload-patterns-section">
+            <h3>Subir archivo de patrones (CSV o TXT)</h3>
+            <input type="file" id="pattern-file" accept=".csv,.txt">
+            <button class="btn-secondary" id="upload-patterns-btn">Subir archivo</button>
         </div>
-    </main>
 
-    <!-- Pie de página -->
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2025 SafeText - Sistema de Detección de Ciberacoso Escolar</p>
-            <p>Creado por <strong>Harry Guajan</strong> y <strong>Joel Tinitana</strong></p>
-            <p>Escuela Politécnica Nacional (EPN) - Estructura de Datos y Algoritmos II</p>
-            <div class="footer-links">
-                <a href="#" class="footer-link">Términos de Uso</a>
-                <span class="separator">•</span>
-                <a href="#" class="footer-link">Política de Privacidad</a>
-                <span class="separator">•</span>
-                <a href="#" class="footer-link">Contacto</a>
-            </div>
+        <!-- Lista de archivos cargados -->
+        <div class="files-section">
+            <h3>Archivos cargados</h3>
+            <table class="patterns-table">
+                <thead>
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Tamaño (KB)</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="files-tbody">
+                    <!-- se llena dinámicamente -->
+                </tbody>
+            </table>
         </div>
-    </footer>
+    </div>
+</main>
 
-    <script>
-        // Variables globales
-        let patterns = [];
-        let currentPage = 1;
-        const patternsPerPage = 9;
+<footer>
+    <div class="footer-content">
+        <p>&copy; 2025 SafeText - Sistema de Detección de Ciberacoso Escolar</p>
+        <p>Creado por <strong>Harry Guajan</strong> y <strong>Joel Tinitana</strong></p>
+        <p>EPN - Estructura de Datos y Algoritmos II</p>
+    </div>
+</footer>
 
-        // Función para cargar patrones desde el CSV
-        async function loadPatternsFromCSV() {
-            try {
-                const response = await fetch('../patrones.csv');
-                const csvText = await response.text();
-                
-                // Parsear CSV
-                const lines = csvText.trim().split('\n');
-                const headers = lines[0].split(',');
-                
-                patterns = [];
-                for (let i = 1; i < lines.length; i++) {
-                    const values = lines[i].split(',');
-                    if (values.length >= 5) {
-                        patterns.push({
-                            id: parseInt(values[0]),
-                            mensaje: values[1].replace(/"/g, ''), // Remover comillas si las hay
-                            gravedad: mapGravedad(values[3]), // Mapear nivel_gravedad a formato legible
-                            categoria: values[2].replace(/"/g, ''),
-                            etiqueta: values[4].replace(/"/g, '')
-                        });
-                    }
-                }
-                
-                loadPatterns();
-                updatePagination();
-            } catch (error) {
-                console.error('Error cargando patrones:', error);
-                // Cargar datos de respaldo si falla la carga del CSV
-                loadDefaultPatterns();
-            }
-        }
+<script>
+let patterns = [];
+let currentPage = 1;
+const patternsPerPage = 10;
 
-        // Función para mapear niveles de gravedad numéricos a texto
-        function mapGravedad(nivelNumerico) {
-            const nivel = parseInt(nivelNumerico);
-            if (nivel >= 85) return "Muy Alto";
-            if (nivel >= 70) return "Alto";
-            if (nivel >= 50) return "Medio";
-            return "Bajo";
-        }
-
-        // Datos de respaldo en caso de error
-        function loadDefaultPatterns() {
-            patterns = [
-                {id: 1, mensaje: "eres un inútil", gravedad: "Muy Alto", categoria: "insulto directo", etiqueta: "desprecio"},
-                {id: 2, mensaje: "no sirves para nada", gravedad: "Muy Alto", categoria: "humillación", etiqueta: "desprecio"},
-                {id: 3, mensaje: "cállate de una vez", gravedad: "Alto", categoria: "agresión verbal", etiqueta: "tono imperativo"},
-                {id: 4, mensaje: "ese tipo me da asco", gravedad: "Medio", categoria: "lenguaje ofensivo", etiqueta: "rechazo social"}
-            ];
+// ====== Cargar patrones ======
+async function loadPatternsFromAPI() {
+    try {
+        const res = await fetch('/api/patterns');
+        const data = await res.json();
+        if (data.success) {
+            patterns = data.patterns.map(p => ({
+                id: p.id,
+                mensaje: p.pattern,
+                gravedad: p.severity,
+                categoria: p.category,
+                etiqueta: p.description
+            }));
             loadPatterns();
             updatePagination();
+        } else {
+            alert('Error al cargar patrones: ' + data.error);
         }
+    } catch (err) {
+        console.error(err);
+        alert('No se pudieron cargar los patrones.');
+    }
+}
 
-        function loadPatterns() {
-            const tbody = document.getElementById('patterns-tbody');
-            tbody.innerHTML = '';
-            
-            const startIndex = (currentPage - 1) * patternsPerPage;
-            const endIndex = startIndex + patternsPerPage;
-            const patternsToShow = patterns.slice(startIndex, endIndex);
-            
-            patternsToShow.forEach(pattern => {
+function loadPatterns() {
+    const tbody = document.getElementById('patterns-tbody');
+    tbody.innerHTML = '';
+    const startIndex = (currentPage - 1) * patternsPerPage;
+    const endIndex = startIndex + patternsPerPage;
+    const toShow = patterns.slice(startIndex, endIndex);
+    toShow.forEach(p => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${p.id}</td>
+            <td>${p.mensaje}</td>
+            <td><span class="gravity-badge">${p.gravedad}</span></td>
+            <td>${p.categoria}</td>
+            <td>${p.etiqueta}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+function updatePagination() {
+    const totalPages = Math.ceil(patterns.length / patternsPerPage);
+    const pagination = document.getElementById('pagination');
+    pagination.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+        btn.textContent = i;
+        btn.onclick = () => {
+            currentPage = i;
+            loadPatterns();
+            updatePagination();
+        };
+        pagination.appendChild(btn);
+    }
+}
+
+// ====== Listar archivos cargados ======
+async function loadFiles() {
+    try {
+        const res = await fetch('/api/list-files');
+        const data = await res.json();
+        const tbody = document.getElementById('files-tbody');
+        tbody.innerHTML = '';
+        if (data.success) {
+            data.files.forEach(file => {
                 const row = document.createElement('tr');
+                // deshabilitar eliminar para patrones.csv
+                const disableDelete = file.name === 'patrones.csv';
                 row.innerHTML = `
-                    <td>${pattern.id}</td>
-                    <td>${pattern.mensaje}</td>
-                    <td><span class="gravity-badge ${pattern.gravedad.toLowerCase().replace(' ', '-')}">${pattern.gravedad}</span></td>
-                    <td>${pattern.categoria}</td>
-                    <td>${pattern.etiqueta}</td>
+                    <td>${file.name}</td>
+                    <td>${file.size}</td>
                     <td>
-                        <button class="btn-action edit-btn" onclick="editPattern(${pattern.id})">Editar</button>
-                        <button class="btn-action delete-btn" onclick="deletePattern(${pattern.id})">Eliminar</button>
+                        ${disableDelete ? 
+                            '<em>Base protegida</em>' :
+                            `<button class="btn-action delete-btn" onclick="deleteFile('${file.name}')">Eliminar</button>`}
                     </td>
                 `;
                 tbody.appendChild(row);
             });
-            
-            updateNewId();
+        } else {
+            alert('Error al listar archivos: ' + data.error);
         }
+    } catch (err) {
+        console.error(err);
+        alert('No se pudieron listar los archivos.');
+    }
+}
 
-        function changePage(page) {
-            currentPage = page;
-            loadPatterns();
-            updatePagination();
-        }
-
-        function updatePagination() {
-            const paginationBtns = document.querySelectorAll('.pagination-btn');
-            paginationBtns.forEach(btn => {
-                btn.classList.remove('active');
-                if (parseInt(btn.textContent) === currentPage) {
-                    btn.classList.add('active');
-                }
-            });
-        }
-
-        function updateNewId() {
-            const maxId = Math.max(...patterns.map(p => p.id));
-            document.getElementById('new-id').value = maxId + 1;
-        }
-
-        function addPattern() {
-            const mensaje = document.getElementById('new-mensaje').value.trim();
-            const gravedad = document.getElementById('new-gravedad').value;
-            const categoria = document.getElementById('new-categoria').value;
-            const etiqueta = document.getElementById('new-etiqueta').value;
-            
-            if (!mensaje) {
-                alert('Por favor, ingrese un mensaje para el patrón');
-                return;
-            }
-            
-            const newPattern = {
-                id: parseInt(document.getElementById('new-id').value),
-                mensaje: mensaje,
-                gravedad: gravedad,
-                categoria: categoria,
-                etiqueta: etiqueta
-            };
-            
-            patterns.push(newPattern);
-            
-            // Limpiar formulario
-            document.getElementById('new-mensaje').value = '';
-            document.getElementById('new-gravedad').selectedIndex = 0;
-            document.getElementById('new-categoria').selectedIndex = 0;
-            document.getElementById('new-etiqueta').selectedIndex = 0;
-            
-            loadPatterns();
-            alert('Patrón añadido exitosamente');
-        }
-
-        function editPattern(id) {
-            const pattern = patterns.find(p => p.id === id);
-            if (pattern) {
-                const newMessage = prompt('Editar mensaje:', pattern.mensaje);
-                if (newMessage && newMessage.trim()) {
-                    pattern.mensaje = newMessage.trim();
-                    loadPatterns();
-                    alert('Patrón actualizado');
-                }
-            }
-        }
-
-        function deletePattern(id) {
-            if (confirm('¿Está seguro de que desea eliminar este patrón?')) {
-                patterns = patterns.filter(p => p.id !== id);
-                loadPatterns();
-                alert('Patrón eliminado');
-            }
-        }
-
-        function resetPatterns() {
-            if (confirm('¿Está seguro de que desea restablecer todos los patrones?')) {
-                location.reload();
-            }
-        }
-
-        function savePatterns() {
-            // Convertir patrones de vuelta a formato CSV
-            let csvContent = "id,frase,categorias,nivel_gravedad,descripcion\n";
-            
-            patterns.forEach(pattern => {
-                const nivel = gravedadToNumber(pattern.gravedad);
-                csvContent += `${pattern.id},"${pattern.mensaje}","${pattern.categoria}",${nivel},"${pattern.etiqueta}"\n`;
-            });
-            
-            // Crear blob y descargar archivo
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'patrones_actualizado.csv';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            
-            alert('Patrones exportados como patrones_actualizado.csv');
-        }
-
-        // Función para convertir gravedad de texto a número
-        function gravedadToNumber(gravedad) {
-            switch(gravedad) {
-                case "Muy Alto": return 90;
-                case "Alto": return 75;
-                case "Medio": return 60;
-                case "Bajo": return 40;
-                default: return 50;
-            }
-        }
-
-        // Event Listeners
-        document.getElementById('add-pattern-btn').addEventListener('click', addPattern);
-        document.getElementById('reset-btn').addEventListener('click', resetPatterns);
-        document.getElementById('save-btn').addEventListener('click', savePatterns);
-        document.getElementById('back-btn').addEventListener('click', () => {
-            window.location.href = 'index.html';
+// ====== Eliminar archivo ======
+async function deleteFile(filename) {
+    if (!confirm(`¿Eliminar ${filename}?`)) return;
+    try {
+        const res = await fetch('/api/delete-file', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename })
         });
+        const data = await res.json();
+        if (data.success) {
+            alert(data.message);
+            await loadFiles();
+            await loadPatternsFromAPI();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Error al eliminar archivo.');
+    }
+}
 
-        // Cargar patrones del CSV al iniciar
-        document.addEventListener('DOMContentLoaded', function() {
-            loadPatternsFromCSV();
-        });
-    </script>
+// ====== Subir archivo ======
+document.getElementById('upload-patterns-btn').addEventListener('click', async () => {
+    const fileInput = document.getElementById('pattern-file');
+    if (fileInput.files.length === 0) {
+        alert('Selecciona un archivo CSV o TXT');
+        return;
+    }
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    try {
+        const res = await fetch('/api/upload-patterns', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+            alert(data.message);
+            await loadPatternsFromAPI();
+            await loadFiles();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Error al subir archivo.');
+    }
+});
+
+// ====== Inicialización ======
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadPatternsFromAPI();
+    await loadFiles();
+});
+</script>
 </body>
 </html>
