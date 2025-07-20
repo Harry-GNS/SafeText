@@ -102,51 +102,11 @@
                             <span class="summary-value" id="algorithms-list">N/A</span>
                         </div>
                     </div>
-                    
-                    <!-- Lista detallada de patrones (colapsable) -->
-                    <div class="patterns-details-toggle">
-                        <button class="toggle-btn" id="toggle-patterns-details">
-                            Ver detalles de patrones ▼
-                        </button>
-                    </div>
-                    <div class="patterns-list" id="patterns-list" style="display: none;">
-                        <!-- Los patrones detectados se mostrarán aquí dinámicamente -->
-                        <div class="loading-patterns">
-                            <div class="spinner"></div>
-                            <p>Analizando patrones...</p>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Recomendaciones -->
-                <div class="recommendations">
-                    <h3>Recomendaciones</h3>
-                    <div class="recommendation-list">
-                        <div class="recommendation-item">
-                            <div class="rec-icon">💡</div>
-                            <div class="rec-content">
-                                <h4>Supervisión Recomendada</h4>
-                                <p>Se sugiere revisar manualmente el contenido identificado para determinar el contexto y la intención real del mensaje.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="recommendation-item">
-                            <div class="rec-icon">📚</div>
-                            <div class="rec-content">
-                                <h4>Educación Preventiva</h4>
-                                <p>Implementar programas de concientización sobre comunicación digital responsable y respeto en línea.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="recommendation-item">
-                            <div class="rec-icon">🔄</div>
-                            <div class="rec-content">
-                                <h4>Monitoreo Continuo</h4>
-                                <p>Establecer un sistema de seguimiento para evaluar la evolución del comportamiento comunicativo.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            </div>
+
+            <!-- Acciones -->
             </div>
 
             <!-- Acciones -->
@@ -302,9 +262,6 @@
         // Función para realizar análisis real con el backend
         async function performRealAnalysis(text) {
             try {
-                // Mostrar indicador de carga
-                showLoadingState();
-                
                 // Llamar al backend para análisis
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
@@ -334,17 +291,6 @@
             }
         }
 
-        // Función para mostrar estado de carga
-        function showLoadingState() {
-            const patternsList = document.getElementById('patterns-list');
-            patternsList.innerHTML = `
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <p>Analizando texto con algoritmos KMP y Boyer-Moore...</p>
-                </div>
-            `;
-        }
-
         // Función para mostrar los resultados del análisis real
         function displayAnalysisResults(result) {
             // Actualizar porcentajes
@@ -355,15 +301,6 @@
             
             // Actualizar resumen de detección
             updateDetectionSummary(result);
-            
-            // Mostrar patrones detectados (en lista detallada)
-            displayDetectedPatterns(result);
-            
-            // Generar recomendaciones dinámicas
-            generateDynamicRecommendations(result);
-            
-            // Configurar toggle para detalles
-            setupDetailsToggle();
             
             // Guardar resultados para exportación
             localStorage.setItem('analysisResults', JSON.stringify(result));
@@ -434,22 +371,6 @@
             document.getElementById('algorithms-list').textContent = algorithmsText;
         }
 
-        // Función para configurar el toggle de detalles
-        function setupDetailsToggle() {
-            const toggleBtn = document.getElementById('toggle-patterns-details');
-            const patternsList = document.getElementById('patterns-list');
-            
-            toggleBtn.addEventListener('click', function() {
-                if (patternsList.style.display === 'none') {
-                    patternsList.style.display = 'block';
-                    toggleBtn.textContent = 'Ocultar detalles de patrones ▲';
-                } else {
-                    patternsList.style.display = 'none';
-                    toggleBtn.textContent = 'Ver detalles de patrones ▼';
-                }
-            });
-        }
-
         // Función para actualizar porcentajes basados en el análisis real
         function updatePercentages(result) {
             let safePercentage, warningPercentage, dangerPercentage;
@@ -494,203 +415,6 @@
             
             // Actualizar descripciones
             updateRiskDescriptions(result);
-        }
-
-        // Función para mostrar patrones detectados reales
-        function displayDetectedPatterns(result) {
-            const patternsList = document.getElementById('patterns-list');
-            
-            if (!result.matches || result.matches.length === 0) {
-                patternsList.innerHTML = `
-                    <div class="no-patterns">
-                        <div class="no-patterns-icon">✅</div>
-                        <h4>No se detectaron patrones de ciberacoso</h4>
-                        <p>El texto analizado no contiene lenguaje que indique ciberacoso.</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            let patternsHTML = '';
-            
-            result.matches.forEach(match => {
-                const riskClass = getSeverityClass(match.pattern_info.severity);
-                const algorithmUsed = match.algorithm_used;
-                const patternInfo = match.pattern_info;
-                
-                patternsHTML += `
-                    <div class="pattern-item ${riskClass}">
-                        <div class="pattern-header">
-                            <span class="pattern-type">${patternInfo.category}</span>
-                            <span class="risk-level">Riesgo ${getSeverityText(patternInfo.severity)}</span>
-                            <span class="algorithm-used">Algoritmo: ${algorithmUsed}</span>
-                        </div>
-                        <div class="pattern-description">
-                            <p><strong>Descripción:</strong> ${patternInfo.description}</p>
-                            <div class="pattern-matches">
-                                <strong>Patrón detectado:</strong>
-                                <span class="match-highlight">"${patternInfo.pattern}"</span>
-                                <span class="match-count">(${match.total_matches} coincidencia(s))</span>
-                            </div>
-                            <div class="pattern-details">
-                                <div class="detail-item">
-                                    <strong>Posiciones en el texto:</strong> ${match.positions.join(', ')}
-                                </div>
-                                <div class="detail-item">
-                                    <strong>ID del patrón:</strong> ${patternInfo.id || 'N/A'}
-                                </div>
-                                <div class="detail-item">
-                                    <strong>Severidad:</strong> ${patternInfo.severity}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            patternsList.innerHTML = patternsHTML;
-        }
-
-        // Función para generar recomendaciones dinámicas
-        function generateDynamicRecommendations(result) {
-            const recommendationsList = document.querySelector('.recommendation-list');
-            let recommendationsHTML = '';
-            
-            if (!result.is_cyberbullying) {
-                // Recomendaciones para contenido seguro
-                recommendationsHTML = `
-                    <div class="recommendation-item">
-                        <div class="rec-icon">✅</div>
-                        <div class="rec-content">
-                            <h4>Contenido Seguro</h4>
-                            <p>El texto analizado no muestra signos de ciberacoso. Continúe promoviendo una comunicación respetuosa.</p>
-                        </div>
-                    </div>
-                    <div class="recommendation-item">
-                        <div class="rec-icon">📚</div>
-                        <div class="rec-content">
-                            <h4>Educación Preventiva</h4>
-                            <p>Mantenga programas de concientización sobre comunicación digital responsable para prevenir futuros incidentes.</p>
-                        </div>
-                    </div>
-                `;
-            } else {
-                // Recomendaciones basadas en el nivel de riesgo
-                switch (result.risk_level) {
-                    case 'Low':
-                        recommendationsHTML = `
-                            <div class="recommendation-item">
-                                <div class="rec-icon">👀</div>
-                                <div class="rec-content">
-                                    <h4>Monitoreo Preventivo</h4>
-                                    <p>Se detectó contenido de riesgo bajo. Realice seguimiento y eduque sobre comunicación apropiada.</p>
-                                </div>
-                            </div>
-                            <div class="recommendation-item">
-                                <div class="rec-icon">💬</div>
-                                <div class="rec-content">
-                                    <h4>Diálogo Constructivo</h4>
-                                    <p>Promueva conversaciones sobre respeto digital y las consecuencias del lenguaje inapropiado.</p>
-                                </div>
-                            </div>
-                        `;
-                        break;
-                        
-                    case 'Medium':
-                        recommendationsHTML = `
-                            <div class="recommendation-item">
-                                <div class="rec-icon">⚠️</div>
-                                <div class="rec-content">
-                                    <h4>Intervención Moderada</h4>
-                                    <p>Se requiere atención inmediata. Contacte a los involucrados y establezca medidas correctivas.</p>
-                                </div>
-                            </div>
-                            <div class="recommendation-item">
-                                <div class="rec-icon">📋</div>
-                                <div class="rec-content">
-                                    <h4>Documentación</h4>
-                                    <p>Documente el incidente y establezca un plan de seguimiento para prevenir escalación.</p>
-                                </div>
-                            </div>
-                            <div class="recommendation-item">
-                                <div class="rec-icon">👨‍🏫</div>
-                                <div class="rec-content">
-                                    <h4>Capacitación Específica</h4>
-                                    <p>Implemente sesiones de capacitación sobre ciberacoso y sus consecuencias.</p>
-                                </div>
-                            </div>
-                        `;
-                        break;
-                        
-                    case 'High':
-                        recommendationsHTML = `
-                            <div class="recommendation-item">
-                                <div class="rec-icon">🚨</div>
-                                <div class="rec-content">
-                                    <h4>Acción Inmediata Requerida</h4>
-                                    <p>Nivel de riesgo alto detectado. Intervenga inmediatamente y contacte a autoridades si es necesario.</p>
-                                </div>
-                            </div>
-                            <div class="recommendation-item">
-                                <div class="rec-icon">👥</div>
-                                <div class="rec-content">
-                                    <h4>Involucrar a Padres/Tutores</h4>
-                                    <p>Contacte a los padres o tutores de todos los involucrados para abordar la situación.</p>
-                                </div>
-                            </div>
-                            <div class="recommendation-item">
-                                <div class="rec-icon">🛡️</div>
-                                <div class="rec-content">
-                                    <h4>Medidas de Protección</h4>
-                                    <p>Implemente medidas de protección para la víctima y sanciones apropiadas para el agresor.</p>
-                                </div>
-                            </div>
-                        `;
-                        break;
-                        
-                    case 'Critical':
-                        recommendationsHTML = `
-                            <div class="recommendation-item">
-                                <div class="rec-icon">🆘</div>
-                                <div class="rec-content">
-                                    <h4>Emergencia - Acción Crítica</h4>
-                                    <p>Nivel crítico de ciberacoso detectado. Contacte inmediatamente a autoridades y servicios de apoyo psicológico.</p>
-                                </div>
-                            </div>
-                            <div class="recommendation-item">
-                                <div class="rec-icon">📞</div>
-                                <div class="rec-content">
-                                    <h4>Contactar Autoridades</h4>
-                                    <p>Reporte el incidente a las autoridades competentes y preserve evidencia digital.</p>
-                                </div>
-                            </div>
-                            <div class="recommendation-item">
-                                <div class="rec-icon">💚</div>
-                                <div class="rec-content">
-                                    <h4>Apoyo Psicológico</h4>
-                                    <p>Proporcione apoyo psicológico inmediato a la víctima y considere intervención profesional.</p>
-                                </div>
-                            </div>
-                        `;
-                        break;
-                }
-                
-                // Agregar información sobre algoritmos utilizados
-                const algorithmsUsed = result.algorithms_used || {};
-                const algorithmInfo = Object.keys(algorithmsUsed).join(', ');
-                
-                recommendationsHTML += `
-                    <div class="recommendation-item">
-                        <div class="rec-icon">🔬</div>
-                        <div class="rec-content">
-                            <h4>Análisis Técnico</h4>
-                            <p>Algoritmo(s) utilizados: ${algorithmInfo}. Total de patrones: ${result.total_patterns_found}. Coincidencias: ${result.total_matches}.</p>
-                        </div>
-                    </div>
-                `;
-            }
-            
-            recommendationsList.innerHTML = recommendationsHTML;
         }
 
         // Funciones auxiliares
