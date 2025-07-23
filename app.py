@@ -30,6 +30,38 @@ CORS(app)  # habilitar CORS si lo necesitas
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
+COMBINED_FILE = 'patrones_combinado.csv'
+
+def generar_archivo_combinado():
+    """
+    Combina patrones.csv (base) + todos los CSV de uploads en un solo archivo temporal.
+    """
+    patrones = cargar_todos_los_patrones()
+    if not patrones:
+        return
+
+    fieldnames = ['id', 'frase', 'categorias', 'nivel_gravedad', 'descripcion']
+    severity_map = {
+        'Muy Alto': 90,
+        'Alto': 70,
+        'Medio': 50,
+        'Bajo': 20
+    }
+
+    with open(COMBINED_FILE, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for p in patrones:
+            sev_text = p.get('severity', '')
+            sev_num = severity_map.get(sev_text, 50)
+            writer.writerow({
+                'id': p.get('id', ''),
+                'frase': p.get('pattern', ''),
+                'categorias': p.get('category', ''),
+                'nivel_gravedad': sev_num,
+                'descripcion': p.get('description', '')
+            })
+    print(f"[INFO] Archivo combinado generado con {len(patrones)} patrones.")
 
 def map_severity(value):
     try:
@@ -186,6 +218,9 @@ def upload_patterns():
             except Exception as e:
                 os.remove(filepath)
                 return jsonify({'success': False, 'error': f'Archivo inválido: {str(e)}'}), 400
+            # validar columnasgenerar_archivo_combinado()
+            generar_archivo_combinado()
+            analyzer.load_patterns()
 
             return jsonify({'success': True, 'message': f'{filename} subido correctamente.'})
         else:
@@ -207,6 +242,9 @@ def delete_file():
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         if os.path.exists(filepath):
             os.remove(filepath)
+            generar_archivo_combinado()
+            analyzer.load_patterns()
+
             return jsonify({'success': True, 'message': f'{filename} eliminado correctamente'})
         else:
             return jsonify({'success': False, 'error': 'El archivo no existe'}), 400
@@ -245,7 +283,10 @@ def delete_pattern():
                 writer = csv.DictWriter(f, fieldnames=headers)
                 writer.writeheader()
                 writer.writerows(nuevos_registros)
-            analyzer.load_patterns()  # recargar después de eliminar
+
+            generar_archivo_combinado()
+            analyzer.load_patterns()
+
             return jsonify({'success': True, 'message': f'Patrón con ID {pattern_id} eliminado correctamente'})
         else:
             return jsonify({'success': False, 'error': 'No se encontró el patrón a eliminar'}), 404
@@ -258,9 +299,12 @@ def delete_pattern():
 app.config['SECRET_KEY'] = 'safetext-cyberbullying-detection-2025'
 
 # Inicializar el analizador
-analyzer = CyberbullyingAnalyzer()
 selector = AlgorithmSelector()
-
+generar_archivo_combinado()
+analyzer = CyberbullyingAnalyzer(patterns_file=COMBINED_FILE)
+analyzer.load_patterns()
+  
+            # Cargar patrones desde el archivo combinado
 @app.route('/')
 def index():
     """Redirige a la página principal del frontend."""
@@ -440,7 +484,8 @@ def reload_patterns():
         "total_patterns": número_de_patrones
     }
     """
-    try:        
+    try:
+        generar_archivo_combinado()        
         analyzer.load_patterns()
         
         return jsonify({
@@ -562,8 +607,8 @@ def add_pattern():
             ])
 
         # Recargar en memoria       
-        analyzer.load_patterns()
-
+        generar_archivo_combinado()
+        analyzer.load_patterns()  # actualizar archivo combinado
         return jsonify({'success': True, 'message': 'Patrón añadido correctamente', 'total_patterns': len(analyzer.patterns)})
 
     except Exception as e:
