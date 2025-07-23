@@ -119,6 +119,28 @@
                     </div>
                 </div>
             </div>
+            <!-- Subir archivo -->
+            <div class="upload-patterns-section">
+                <h3>Subir archivo de patrones (CSV o TXT)</h3>
+                <input type="file" id="pattern-file" accept=".csv,.txt">
+                <button class="btn-secondary" id="upload-patterns-btn">Subir archivo</button>
+            </div>
+            <!-- Lista de archivos cargados -->
+            <div class="files-section">
+                <h3>Archivos cargados</h3>
+                <table class="patterns-table">
+                    <thead>
+                        <tr>
+                            <th>Archivo</th>
+                            <th>Tamaño (KB)</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="files-tbody">
+                        <!-- se llena dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Botones de acción -->
             <div class="config-actions">
@@ -151,38 +173,30 @@
         let currentPage = 1;
         const patternsPerPage = 9;
 
-        // Función para cargar patrones desde el CSV
-        async function loadPatternsFromCSV() {
-            try {
-                const response = await fetch('../patrones.csv');
-                const csvText = await response.text();
-                
-                // Parsear CSV
-                const lines = csvText.trim().split('\n');
-                const headers = lines[0].split(',');
-                
-                patterns = [];
-                for (let i = 1; i < lines.length; i++) {
-                    const values = lines[i].split(',');
-                    if (values.length >= 5) {
-                        patterns.push({
-                            id: parseInt(values[0]),
-                            mensaje: values[1].replace(/"/g, ''), // Remover comillas si las hay
-                            gravedad: mapGravedad(values[3]), // Mapear nivel_gravedad a formato legible
-                            categoria: values[2].replace(/"/g, ''),
-                            etiqueta: values[4].replace(/"/g, '')
-                        });
-                    }
-                }
-                
-                loadPatterns();
-                updatePagination();
-            } catch (error) {
-                console.error('Error cargando patrones:', error);
-                // Cargar datos de respaldo si falla la carga del CSV
-                loadDefaultPatterns();
-            }
+        // Nueva función para cargar patrones desde la API
+async function loadPatternsFromAPI() {
+    try {
+        const res = await fetch('/api/patterns');
+        const data = await res.json();
+        if (data.success) {
+            patterns = data.patterns.map(p => ({
+                id: parseInt(p.id),
+                mensaje: p.pattern,
+                gravedad: p.severity,
+                categoria: p.category,
+                etiqueta: p.description
+            }));
+            loadPatterns();
+            updatePagination();
+        } else {
+            alert('Error al cargar patrones: ' + data.error);
         }
+    } catch (err) {
+        console.error(err);
+        alert('No se pudieron cargar los patrones desde la API.');
+    }
+}
+
 
         // Función para mapear niveles de gravedad numéricos a texto
         function mapGravedad(nivelNumerico) {
@@ -214,23 +228,49 @@
             const patternsToShow = patterns.slice(startIndex, endIndex);
             
             patternsToShow.forEach(pattern => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${pattern.id}</td>
-                    <td>${pattern.mensaje}</td>
-                    <td><span class="gravity-badge ${pattern.gravedad.toLowerCase().replace(' ', '-')}">${pattern.gravedad}</span></td>
-                    <td>${pattern.categoria}</td>
-                    <td>${pattern.etiqueta}</td>
-                    <td>
-                        <button class="btn-action edit-btn" onclick="editPattern(${pattern.id})">Editar</button>
-                        <button class="btn-action delete-btn" onclick="deletePattern(${pattern.id})">Eliminar</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
+    const row = document.createElement('tr');
+
+    // Si el ID es protegido, muestra "Protegido", si no, muestra el botón
+    const actionCell = pattern.id > 115
+        ? `<button class="delete-btn" onclick="deletePattern(${pattern.id})">Eliminar</button>`
+        : `<em>Protegido</em>`;
+
+    row.innerHTML = `
+        <td>${pattern.id}</td>
+        <td>${pattern.mensaje}</td>
+        <td><span class="gravity-badge ${pattern.gravedad.toLowerCase().replace(' ', '-')}">${pattern.gravedad}</span></td>
+        <td>${pattern.categoria}</td>
+        <td>${pattern.etiqueta}</td>
+        <td>${actionCell}</td>
+    `;
+    tbody.appendChild(row);
+});
+
             
             updateNewId();
         }
+
+        async function deletePattern(id) {
+    if (!confirm(`¿Eliminar patrón con ID ${id}?`)) return;
+
+    try {
+        const res = await fetch('/api/delete-pattern', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert(data.message);
+            await loadPatternsFromAPI(); // Recargar la tabla
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Error al eliminar patrón.');
+    }
+}
 
         function changePage(page) {
             currentPage = page;
@@ -239,50 +279,70 @@
         }
 
         function updatePagination() {
-            const paginationBtns = document.querySelectorAll('.pagination-btn');
-            paginationBtns.forEach(btn => {
-                btn.classList.remove('active');
-                if (parseInt(btn.textContent) === currentPage) {
-                    btn.classList.add('active');
-                }
-            });
-        }
+    const totalPages = Math.ceil(patterns.length / patternsPerPage);
+    const paginationDiv = document.getElementById('pagination');
+    paginationDiv.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+        btn.onclick = () => changePage(i);
+        paginationDiv.appendChild(btn);
+    }
+}
+
 
         function updateNewId() {
             const maxId = Math.max(...patterns.map(p => p.id));
             document.getElementById('new-id').value = maxId + 1;
         }
 
-        function addPattern() {
-            const mensaje = document.getElementById('new-mensaje').value.trim();
-            const gravedad = document.getElementById('new-gravedad').value;
-            const categoria = document.getElementById('new-categoria').value;
-            const etiqueta = document.getElementById('new-etiqueta').value;
-            
-            if (!mensaje) {
-                alert('Por favor, ingrese un mensaje para el patrón');
-                return;
-            }
-            
-            const newPattern = {
-                id: parseInt(document.getElementById('new-id').value),
-                mensaje: mensaje,
-                gravedad: gravedad,
-                categoria: categoria,
-                etiqueta: etiqueta
-            };
-            
-            patterns.push(newPattern);
-            
-            // Limpiar formulario
-            document.getElementById('new-mensaje').value = '';
-            document.getElementById('new-gravedad').selectedIndex = 0;
-            document.getElementById('new-categoria').selectedIndex = 0;
-            document.getElementById('new-etiqueta').selectedIndex = 0;
-            
-            loadPatterns();
-            alert('Patrón añadido exitosamente');
+        async function addPattern() {
+    const mensaje = document.getElementById('new-mensaje').value.trim();
+    const gravedad = document.getElementById('new-gravedad').value;
+    const categoria = document.getElementById('new-categoria').value;
+    const etiqueta = document.getElementById('new-etiqueta').value;
+
+    if (!mensaje) {
+        alert('Por favor, ingrese un mensaje para el patrón');
+        return;
+    }
+
+    // Crear objeto en formato esperado por el backend
+    const nuevoPatron = {
+        id: document.getElementById('new-id').value,
+        frase: mensaje,
+        categorias: categoria,
+        nivel_gravedad: gravedadToNumber(gravedad),
+        descripcion: etiqueta
+    };
+
+    try {
+        const res = await fetch('/api/add-pattern', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevoPatron)
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert('Patrón añadido correctamente');
+            await loadPatternsFromAPI(); // recargar la tabla desde backend
+            updateNewId();
+        } else {
+            alert('Error al añadir patrón: ' + data.error);
         }
+    } catch (err) {
+        console.error(err);
+        alert('Error al guardar patrón.');
+    }
+
+    // Limpiar formulario
+    document.getElementById('new-mensaje').value = '';
+    document.getElementById('new-gravedad').selectedIndex = 0;
+    document.getElementById('new-categoria').selectedIndex = 0;
+    document.getElementById('new-etiqueta').selectedIndex = 0;
+}
+
 
         function editPattern(id) {
             const pattern = patterns.find(p => p.id === id);
@@ -293,14 +353,6 @@
                     loadPatterns();
                     alert('Patrón actualizado');
                 }
-            }
-        }
-
-        function deletePattern(id) {
-            if (confirm('¿Está seguro de que desea eliminar este patrón?')) {
-                patterns = patterns.filter(p => p.id !== id);
-                loadPatterns();
-                alert('Patrón eliminado');
             }
         }
 
@@ -353,9 +405,99 @@
         });
 
         // Cargar patrones del CSV al iniciar
-        document.addEventListener('DOMContentLoaded', function() {
-            loadPatternsFromCSV();
+        document.addEventListener('DOMContentLoaded', async () => {
+    await loadPatternsFromAPI();
+    await loadFiles();
+});
+
+        // ====== Listar archivos cargados ======
+async function loadFiles() {
+    try {
+        const res = await fetch('/api/list-files');
+        const data = await res.json();
+        const tbody = document.getElementById('files-tbody');
+        tbody.innerHTML = '';
+        if (data.success) {
+            data.files.forEach(file => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${file.name}</td>
+                    <td>${file.size} KB</td>
+                    <td>
+                        ${file.protected
+                            ? '<em>Base protegida</em>'
+                            : `<button class="btn-action delete-btn" onclick="deleteFile('${file.name}')">Eliminar</button>`}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        } else {
+            alert('Error al listar archivos: ' + data.error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert('No se pudieron listar los archivos.');
+    }
+}
+
+// ====== Eliminar archivo ======
+async function deleteFile(filename) {
+    if (!confirm(`¿Eliminar ${filename}?`)) return;
+    try {
+        const res = await fetch('/api/delete-file', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename })
         });
-    </script>
+        const data = await res.json();
+        if (data.success) {
+            alert(data.message);
+            await loadFiles();
+            await loadPatternsFromAPI(); 
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Error al eliminar archivo.');
+    }
+}
+
+// ====== Subir archivo ======
+document.getElementById('upload-patterns-btn').addEventListener('click', async () => {
+    const fileInput = document.getElementById('pattern-file');
+    if (fileInput.files.length === 0) {
+        alert('Selecciona un archivo CSV o TXT');
+        return;
+    }
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    try {
+        const res = await fetch('/api/upload-patterns', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+            alert(data.message);
+            await loadFiles();
+            await loadPatternsFromAPI();
+        } else {
+            if (!data.success && data.error.includes('columnas')) {
+                alert('El archivo no es válido. Debe tener las columnas: id, frase, categorias, nivel_gravedad, descripcion (o sus equivalentes mensaje, gravedad, categoria, etiqueta).');
+            } else {
+
+            alert('Error: ' + data.error);
+        }
+    } } catch (err) {
+        console.error(err);
+        alert('Error al subir archivo.');
+    }
+});
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadPatternsFromAPI();
+    await loadFiles()
+});
+
+    </script> 
 </body>
 </html>
