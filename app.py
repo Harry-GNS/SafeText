@@ -494,6 +494,34 @@ def search_pattern():
             'error': f'Error en la búsqueda: {str(e)}'
         }), 500
 
+@app.route('/api/debug', methods=['GET'])
+def debug_info():
+    """Endpoint de debugging para ver el estado del sistema"""
+    try:
+        import os
+        debug_data = {
+            'working_directory': os.getcwd(),
+            'files_in_directory': os.listdir('.'),
+            'base_file_exists': os.path.exists(BASE_FILE),
+            'base_file_path': BASE_FILE,
+            'upload_folder_exists': os.path.exists(UPLOAD_FOLDER),
+            'combined_file_exists': os.path.exists(COMBINED_FILE),
+            'patterns_count': len(cargar_todos_los_patrones()),
+            'analyzer_patterns_count': len(analyzer.patterns) if hasattr(analyzer, 'patterns') else 'No disponible'
+        }
+        
+        # Intentar leer las primeras líneas del archivo base
+        if os.path.exists(BASE_FILE):
+            try:
+                with open(BASE_FILE, 'r', encoding='utf-8') as f:
+                    debug_data['base_file_first_lines'] = f.readlines()[:3]
+            except Exception as e:
+                debug_data['base_file_read_error'] = str(e)
+        
+        return jsonify({'success': True, 'debug': debug_data})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/patterns', methods=['GET'])
 def get_patterns():
     try:
