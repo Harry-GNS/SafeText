@@ -30,6 +30,10 @@ mockups/
 *.csv
 *.xlsx
 
+# Excepciones: archivos CSV necesarios para el funcionamiento
+!patrones_combinado.csv
+!patrones.csv
+
 # Compilación o dist (por si exportas algo en frontend más adelante)
 dist/
 build/
