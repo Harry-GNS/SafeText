@@ -31,7 +31,7 @@ CORS(app)  # habilitar CORS si lo necesitas
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 COMBINED_FILE = 'patrones_combinado.csv'
-
+#hASTA AQUI TODO MENOS CONSEJOS
 def generar_archivo_combinado():
     """
     Verifica que el archivo combinado exista. Si no existe, lo crea desde patrones.csv.
