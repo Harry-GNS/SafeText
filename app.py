@@ -546,9 +546,14 @@ def debug_info():
 @app.route('/api/patterns', methods=['GET'])
 def get_patterns():
     try:
+        print("[API] Llamando a get_patterns")
         patterns = cargar_todos_los_patrones()
+        print(f"[API] Patrones obtenidos: {len(patterns)}")
+        if len(patterns) > 0:
+            print(f"[API] Primer patrón: {patterns[0]}")
         return jsonify({'success': True, 'patterns': patterns})
     except Exception as e:
+        print(f"[API ERROR] Error al obtener patrones: {str(e)}")
         return jsonify({'success': False, 'error': f'Error al obtener patrones: {str(e)}'}), 500
 
 
