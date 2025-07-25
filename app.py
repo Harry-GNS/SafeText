@@ -19,7 +19,7 @@ from recommendations_engine import get_recommendations_for_analysis
 ##Comentario Harry
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
-BASE_FILE = 'patrones.csv'
+BASE_FILE = 'patrones_combinado.csv'  # Usar el archivo combinado como base
 ALLOWED_EXTENSIONS = {'csv', 'txt'}
 MAX_FILES = 5
 TIEMPO_MAXIMO = 86400
@@ -34,10 +34,16 @@ COMBINED_FILE = 'patrones_combinado.csv'
 
 def generar_archivo_combinado():
     """
-    Combina patrones.csv (base) + todos los CSV de uploads en un solo archivo temporal.
+    Verifica que el archivo combinado exista. Si no existe, lo crea desde patrones.csv.
     """
+    if os.path.exists(COMBINED_FILE):
+        print(f"[INFO] Archivo combinado ya existe: {COMBINED_FILE}")
+        return
+    
+    print(f"[INFO] Generando archivo combinado desde patrones.csv...")
     patrones = cargar_todos_los_patrones()
     if not patrones:
+        print("[WARNING] No se encontraron patrones para generar archivo combinado")
         return
 
     fieldnames = ['id', 'frase', 'categorias', 'nivel_gravedad', 'descripcion']
@@ -139,7 +145,7 @@ def cargar_todos_los_patrones():
         if mensaje not in patrones_dict or gravedad_num > patrones_dict[mensaje]['severity_num']:
             patrones_dict[mensaje] = nuevo_patron
 
-    # --- Procesar archivo base ---
+    # --- Procesar archivo base (ahora patrones_combinado.csv) ---
     if os.path.exists(BASE_FILE):
         print(f"[DEBUG] Cargando archivo base: {BASE_FILE}")
         try:
@@ -155,9 +161,9 @@ def cargar_todos_los_patrones():
     else:
         print(f"[WARNING] Archivo base {BASE_FILE} no encontrado")
 
-    # --- Procesar archivos subidos ---
+    # --- Procesar archivos subidos adicionales ---
     if os.path.exists(UPLOAD_FOLDER):
-        print(f"[DEBUG] Revisando archivos en {UPLOAD_FOLDER}")
+        print(f"[DEBUG] Revisando archivos adicionales en {UPLOAD_FOLDER}")
         for archivo in os.listdir(UPLOAD_FOLDER):
             ruta = os.path.join(UPLOAD_FOLDER, archivo)
             if os.path.isfile(ruta) and allowed_file(archivo):
