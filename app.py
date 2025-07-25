@@ -94,6 +94,20 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+# Patrones básicos de respaldo en caso de que el CSV no se cargue
+PATRONES_RESPALDO = [
+    {'id': '1', 'pattern': 'eres un inútil', 'category': 'insulto directo', 'severity': 'Muy Alto', 'description': 'Insulto directo'},
+    {'id': '2', 'pattern': 'no sirves para nada', 'category': 'humillación', 'severity': 'Muy Alto', 'description': 'Humillación'},
+    {'id': '3', 'pattern': 'cállate de una vez', 'category': 'agresión verbal', 'severity': 'Alto', 'description': 'Orden agresiva'},
+    {'id': '4', 'pattern': 'idiota', 'category': 'insulto directo', 'severity': 'Alto', 'description': 'Insulto común'},
+    {'id': '5', 'pattern': 'estúpido', 'category': 'insulto cognitivo', 'severity': 'Alto', 'description': 'Ataque a inteligencia'},
+    {'id': '6', 'pattern': 'tonto', 'category': 'insulto leve', 'severity': 'Medio', 'description': 'Insulto menor'},
+    {'id': '7', 'pattern': 'feo', 'category': 'insulto físico', 'severity': 'Medio', 'description': 'Ataque apariencia'},
+    {'id': '8', 'pattern': 'gordo', 'category': 'insulto físico', 'severity': 'Medio', 'description': 'Comentario peso'},
+    {'id': '9', 'pattern': 'nadie te quiere', 'category': 'exclusión social', 'severity': 'Alto', 'description': 'Exclusión social'},
+    {'id': '10', 'pattern': 'eres un perdedor', 'category': 'desprecio', 'severity': 'Alto', 'description': 'Desprecio general'}
+]
+
 def cargar_todos_los_patrones():
     patrones_dict = {}  # clave: texto normalizado, valor: patrón con más gravedad
     
@@ -165,6 +179,13 @@ def cargar_todos_los_patrones():
         patrones_final.append(pat)
 
     print(f"[DEBUG] Total patrones finales: {len(patrones_final)}")
+    
+    # Si no se cargaron patrones, usar los de respaldo
+    if len(patrones_final) == 0:
+        print("[WARNING] No se cargaron patrones desde archivos, usando patrones de respaldo")
+        patrones_final = PATRONES_RESPALDO.copy()
+        print(f"[DEBUG] Usando {len(patrones_final)} patrones de respaldo")
+    
     return patrones_final
 
 
