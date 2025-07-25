@@ -9,6 +9,7 @@ import os
 import csv
 import sys
 import time
+from datetime import datetime
 from werkzeug.utils import secure_filename
 # Agregar el directorio actual al path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -632,7 +633,7 @@ def get_recommendations():
             return jsonify({
                 'success': True,
                 'recommendation': recommendations_result['recommendation'],
-                'generated_at': analyzer._get_timestamp()
+                'generated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             })
         else:
             return jsonify({
