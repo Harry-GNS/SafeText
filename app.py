@@ -96,6 +96,11 @@ def allowed_file(filename):
 
 def cargar_todos_los_patrones():
     patrones_dict = {}  # clave: texto normalizado, valor: patrón con más gravedad
+    
+    print(f"[DEBUG] Intentando cargar patrones...")
+    print(f"[DEBUG] BASE_FILE: {BASE_FILE}")
+    print(f"[DEBUG] Directorio actual: {os.getcwd()}")
+    print(f"[DEBUG] BASE_FILE existe: {os.path.exists(BASE_FILE)}")
 
     def procesar_row(row):
         mensaje = (row.get('frase') or row.get('mensaje') or '').strip().lower()
@@ -122,20 +127,36 @@ def cargar_todos_los_patrones():
 
     # --- Procesar archivo base ---
     if os.path.exists(BASE_FILE):
-        with open(BASE_FILE, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                procesar_row(row)
+        print(f"[DEBUG] Cargando archivo base: {BASE_FILE}")
+        try:
+            with open(BASE_FILE, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                count = 0
+                for row in reader:
+                    procesar_row(row)
+                    count += 1
+                print(f"[DEBUG] Procesadas {count} líneas del archivo base")
+        except Exception as e:
+            print(f"[ERROR] Error leyendo archivo base: {e}")
+    else:
+        print(f"[WARNING] Archivo base {BASE_FILE} no encontrado")
 
     # --- Procesar archivos subidos ---
     if os.path.exists(UPLOAD_FOLDER):
+        print(f"[DEBUG] Revisando archivos en {UPLOAD_FOLDER}")
         for archivo in os.listdir(UPLOAD_FOLDER):
             ruta = os.path.join(UPLOAD_FOLDER, archivo)
             if os.path.isfile(ruta) and allowed_file(archivo):
-                with open(ruta, 'r', encoding='utf-8') as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        procesar_row(row)
+                try:
+                    with open(ruta, 'r', encoding='utf-8') as f:
+                        reader = csv.DictReader(f)
+                        count = 0
+                        for row in reader:
+                            procesar_row(row)
+                            count += 1
+                        print(f"[DEBUG] Procesadas {count} líneas de {archivo}")
+                except Exception as e:
+                    print(f"[ERROR] Error leyendo {archivo}: {e}")
 
     # Convertir dict a lista y eliminar campo auxiliar
     patrones_final = []
@@ -143,6 +164,7 @@ def cargar_todos_los_patrones():
         pat.pop('severity_num', None)
         patrones_final.append(pat)
 
+    print(f"[DEBUG] Total patrones finales: {len(patrones_final)}")
     return patrones_final
 
 
@@ -299,10 +321,19 @@ def delete_pattern():
 app.config['SECRET_KEY'] = 'safetext-cyberbullying-detection-2025'
 
 # Inicializar el analizador
+print("[INIT] Inicializando aplicación...")
+print(f"[INIT] Directorio de trabajo: {os.getcwd()}")
+print(f"[INIT] Archivos en directorio: {os.listdir('.')}")
+
 selector = AlgorithmSelector()
+print("[INIT] Generando archivo combinado...")
 generar_archivo_combinado()
+print("[INIT] Inicializando analizador...")
 analyzer = CyberbullyingAnalyzer(patterns_file=COMBINED_FILE)
+print("[INIT] Cargando patrones...")
 analyzer.load_patterns()
+print(f"[INIT] Patrones cargados en analyzer: {len(analyzer.patterns) if hasattr(analyzer, 'patterns') else 'No disponible'}")
+print("[INIT] Inicialización completada.")
   
             # Cargar patrones desde el archivo combinado
 @app.route('/')
